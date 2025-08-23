@@ -1,0 +1,6 @@
+@DigiGrafWeb_HostAddress = http://localhost:5027
+
+GET {{DigiGrafWeb_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
