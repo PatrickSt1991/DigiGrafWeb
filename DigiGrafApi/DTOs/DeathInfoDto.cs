@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
 
-namespace DigiGrafWeb.Models
+namespace DigiGrafWeb.DTOs
 {
-    public class DeathInfo
+    public class DeathInfoDto
     {
-        [Key]
         public Guid Id { get; set; }
-
+        public Guid DossierId { get; set; }
         public DateTime? DateOfDeath { get; set; }
         public TimeSpan? TimeOfDeath { get; set; }
         public string LocationOfDeath { get; set; } = "";
@@ -19,10 +17,5 @@ namespace DigiGrafWeb.Models
         public string CountyOfDeath { get; set; } = "";
         public string BodyFinding { get; set; } = "";
         public string Origin { get; set; } = "";
-
-        // Foreign key
-        public Guid DossierId { get; set; }
-        [ForeignKey("DossierId")]
-        public Dossier? Dossier { get; set; }
     }
 }

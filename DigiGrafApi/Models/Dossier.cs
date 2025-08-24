@@ -1,12 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DigiGrafWeb.Models
 {
     public class Dossier
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         // Funeral info
         public string FuneralLeader { get; set; } = "";

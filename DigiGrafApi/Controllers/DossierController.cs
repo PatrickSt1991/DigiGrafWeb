@@ -1,78 +1,85 @@
 ﻿using DigiGrafWeb.Data;
+using DigiGrafWeb.DTOs;
+using DigiGrafWeb.Mappers;
 using DigiGrafWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace DigiGrafWeb.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class DossierController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class DossierController : ControllerBase
+    private readonly FuneralSession _session;
+    private readonly AppDbContext _db;
+
+    public DossierController(AppDbContext db, FuneralSession session)
     {
-        private readonly AppDbContext _db;
-        private readonly FuneralSession _session;
+        _db = db;
+        _session = session;
+    }
+    
+    //Create Dossier
+    [HttpPost("new")]
+    public async Task<IActionResult> CreateNew([FromBody] DossierDto request)
+    {
+        if (request == null)
+            return BadRequest("Invalid dossier data");
 
-        public DossierController(AppDbContext db, FuneralSession session)
-        {
-            _db = db;
-            _session = session;
-        }
+        var dossier = DossierMapper.ToEntity(request);
 
-        [HttpPost("new")]
-        public async Task<IActionResult> CreateNew([FromBody] Dossier request)
-        {
-            if (request == null)
-                return BadRequest("Invalid dossier data.");
+        _db.Dossiers.Add(dossier);
+        await _db.SaveChangesAsync();
 
-            // Save Dossier to database
-            await _db.Dossiers.AddAsync(request);
-            await _db.SaveChangesAsync();
+        // Update session
+        _session.FuneralLeader = dossier.FuneralLeader;
+        _session.FuneralNumber = dossier.FuneralNumber;
+        _session.NewDossierCreation = true;
+        _session.DossierCompleted = false;
+        _session.Voorregeling = dossier.Voorregeling;
 
-            // Update session info
-            _session.FuneralNumber = request.FuneralNumber;
-            _session.FuneralLeader = request.FuneralLeader;
-            _session.Voorregeling = request.Voorregeling;
-            _session.FuneralType = request.FuneralType;
-            _session.NewDossierCreation = true;
-            _session.DossierCompleted = false;
+        return Ok(DossierMapper.ToDto(dossier));
+    }
 
-            return Ok(request);
-        }
+    //Get Dossier
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid Id)
+    {
+        var dossier = await _db.Dossiers
+            .Include(d => d.Deceased)
+            .Include(d => d.DeathInfo)
+            .FirstOrDefaultAsync(d => d.Id == Id);
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetDossier(int id)
-        {
-            var dossier = await _db.Dossiers.FindAsync(id);
+        if (dossier == null)
+            return NotFound(new { message = "Dossier not found" });
 
-            if (dossier == null)
-                return NotFound();
+        return Ok(DossierMapper.ToDto(dossier));
+    }
 
-            return Ok(dossier);
-        }
+    //Update Dossier
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateDossier(Guid Id, [FromBody] DossierDto request)
+    {
+        var dossier = await _db.Dossiers
+            .Include(d => d.Deceased)
+            .Include(d => d.DeathInfo)
+            .FirstOrDefaultAsync(d => d.Id == Id);
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDossier(int id, [FromBody] Dossier updatedDossier)
-        {
-            var dossier = await _db.Dossiers
-                .Include(d => d.Deceased)  // include the related Deceased entity
-                .FirstOrDefaultAsync(d => d.Id == id);
+        if (dossier == null)
+            return NotFound(new { message = "Dossier not found" });
 
-            if (dossier == null) return NotFound();
+        var updatedEntity = DossierMapper.ToEntity(request);
 
-            // Update deceased info
-            dossier.Deceased.FirstName = updatedDossier.Deceased.FirstName;
-            dossier.Deceased.LastName = updatedDossier.Deceased.LastName;
-            dossier.Deceased.Dob = updatedDossier.Deceased.Dob;
-            // ...other deceased fields
+        dossier.FuneralLeader = updatedEntity.FuneralLeader;
+        dossier.FuneralNumber = updatedEntity.FuneralNumber;
+        dossier.FuneralType = updatedEntity.FuneralType;
+        dossier.Voorregeling = updatedEntity.Voorregeling;
+        dossier.DossierCompleted = updatedEntity.DossierCompleted;
 
-            // Update dossier info
-            dossier.FuneralLeader = updatedDossier.FuneralLeader;
-            dossier.FuneralNumber = updatedDossier.FuneralNumber;
-            dossier.Voorregeling = updatedDossier.Voorregeling;
-            dossier.FuneralType = updatedDossier.FuneralType;
+        dossier.Deceased = updatedEntity.Deceased;
+        dossier.DeathInfo = updatedEntity.DeathInfo;
 
-            await _db.SaveChangesAsync();
-            return Ok(dossier);
-        }
+        await _db.SaveChangesAsync();
+
+        return Ok(DossierMapper.ToDto(dossier));
     }
 }
