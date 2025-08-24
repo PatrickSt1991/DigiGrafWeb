@@ -6,7 +6,6 @@ namespace DigiGrafWeb.Models
     {
         public string? FullName { get; set; }
         public string? RoleDescription { get; set; }
-        public ICollection<UserRole> UserRoles { get; set; }
 
     }
 

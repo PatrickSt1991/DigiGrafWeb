@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DigiGrafWeb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250824174231_InitialGuidIdentity")]
+    [Migration("20250824192434_InitialGuidIdentity")]
     partial class InitialGuidIdentity
     {
         /// <inheritdoc />
@@ -298,83 +298,6 @@ namespace DigiGrafWeb.Migrations
                     b.ToTable("Dossiers");
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.RolePermission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PermissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PermissionId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RolePermissions");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.UserRole", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserRoles");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
@@ -500,48 +423,6 @@ namespace DigiGrafWeb.Migrations
                     b.Navigation("Dossier");
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.RolePermission", b =>
-                {
-                    b.HasOne("DigiGrafWeb.Models.Permission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DigiGrafWeb.Models.Role", "Role")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.UserRole", b =>
-                {
-                    b.HasOne("DigiGrafWeb.Models.ApplicationUser", null)
-                        .WithMany("UserRoles")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("DigiGrafWeb.Models.Role", "Role")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DigiGrafWeb.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("DigiGrafWeb.Models.ApplicationRole", null)
@@ -593,28 +474,11 @@ namespace DigiGrafWeb.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("UserRoles");
-                });
-
             modelBuilder.Entity("DigiGrafWeb.Models.Dossier", b =>
                 {
                     b.Navigation("DeathInfo");
 
                     b.Navigation("Deceased");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.Role", b =>
-                {
-                    b.Navigation("RolePermissions");
-
-                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -69,6 +70,8 @@ namespace DigiGrafWeb.Controllers
 
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
+
+            await _userManager.AddToRoleAsync(user, "Gebruiker");
 
             return Ok("User created");
         }

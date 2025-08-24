@@ -19,23 +19,22 @@ namespace DigiGrafWeb.Data
             // -------------------------
             // 1️⃣ Seed Identity Roles
             // -------------------------
-            string[] identityRoleNames = { "Admin", "Uitvaartleider", "Gebruiker", "Financieel" };
-            foreach (var roleName in identityRoleNames)
+            string[] roles = { "Admin", "Uitvaartleider", "Gebruiker", "Financieel" };
+            foreach (var roleName in roles)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {
-                    var identityRole = new ApplicationRole
+                    var role = new ApplicationRole
                     {
-                        Id = Guid.NewGuid(),
                         Name = roleName,
                         NormalizedName = roleName.ToUpper()
                     };
-                    await roleManager.CreateAsync(identityRole);
+                    await roleManager.CreateAsync(role);
                 }
             }
 
             // -------------------------
-            // 2️⃣ Seed Identity Admin User
+            // 2️⃣ Seed Admin User
             // -------------------------
             var adminEmail = "admin@local.local";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
@@ -46,83 +45,19 @@ namespace DigiGrafWeb.Data
                     UserName = adminEmail,
                     Email = adminEmail,
                     EmailConfirmed = true,
-                    FullName = "System Administrator",
-                    RoleDescription = "Default system admin"
+                    FullName = "System Administrator"
                 };
 
                 var result = await userManager.CreateAsync(adminUser, "Admin123!");
                 if (!result.Succeeded)
                     throw new Exception($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
 
+            // Assign Admin role
+            if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+            {
                 await userManager.AddToRoleAsync(adminUser, "Admin");
             }
-
-            // -------------------------
-            // 3️⃣ Seed Custom Roles
-            // -------------------------
-            string[] customRoleNames = { "Admin", "Uitvaartleider", "Gebruiker", "Financieel" };
-            foreach (var roleName in customRoleNames)
-            {
-                if (!context.Roles.Any(r => r.Name == roleName))
-                {
-                    context.Roles.Add(new Role
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = roleName
-                    });
-                }
-            }
-            await context.SaveChangesAsync();
-
-            // -------------------------
-            // 4️⃣ Seed Permissions
-            // -------------------------
-            if (!context.Permissions.Any())
-            {
-                var permissions = new[]
-                {
-                    new Permission { Id = Guid.NewGuid(), Name = "ManageFinance" },
-                    new Permission { Id = Guid.NewGuid(), Name = "ManageReports" },
-                    new Permission { Id = Guid.NewGuid(), Name = "ManageSystem" },
-                    new Permission { Id = Guid.NewGuid(), Name = "ViewDossiers" },
-                    new Permission { Id = Guid.NewGuid(), Name = "CreateDossier" }
-                };
-
-                context.Permissions.AddRange(permissions);
-                await context.SaveChangesAsync();
-            }
-
-            // -------------------------
-            // 5️⃣ Assign ManageSystem to Admin (custom Role)
-            // -------------------------
-            var adminCustomRole = await context.Roles.FirstAsync(r => r.Name == "Admin");
-            var manageSystemPermission = await context.Permissions.FirstAsync(p => p.Name == "ManageSystem");
-
-            if (!context.RolePermissions.Any(rp => rp.RoleId == adminCustomRole.Id && rp.PermissionId == manageSystemPermission.Id))
-            {
-                context.RolePermissions.Add(new RolePermission
-                {
-                    Id = Guid.NewGuid(),
-                    RoleId = adminCustomRole.Id,
-                    PermissionId = manageSystemPermission.Id
-                });
-                await context.SaveChangesAsync();
-            }
-
-            // -------------------------
-            // 6️⃣ Assign Admin user to custom UserRole
-            // -------------------------
-            if (!context.UserRoles.Any(ur => ur.UserId == adminUser.Id && ur.RoleId == adminCustomRole.Id))
-            {
-                context.UserRoles.Add(new UserRole
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = adminUser.Id,
-                    RoleId = adminCustomRole.Id
-                });
-                await context.SaveChangesAsync();
-            }
-
         }
     }
 }
