@@ -4,7 +4,7 @@ namespace DigiGrafWeb.DTOs
 {
     public class DeathInfoDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public Guid DossierId { get; set; }
         public DateTime? DateOfDeath { get; set; }
         public TimeSpan? TimeOfDeath { get; set; }

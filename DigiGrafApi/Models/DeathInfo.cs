@@ -6,7 +6,7 @@ namespace DigiGrafWeb.Models
     public class DeathInfo
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         public DateTime? DateOfDeath { get; set; }
         public TimeSpan? TimeOfDeath { get; set; }

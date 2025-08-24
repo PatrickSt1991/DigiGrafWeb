@@ -1,4 +1,5 @@
 ﻿using DigiGrafWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -27,17 +28,19 @@ namespace DigiGrafWeb.Controllers
             if (!result.Succeeded)
                 return Unauthorized("Invalid email or password");
 
+            var roles = await _userManager.GetRolesAsync(user);
+
             //Generate JWT
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("SuperLongSecureSecretKeyThatIsAtLeast32Chars!");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.UserName)
-                }),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email ?? ""),
+                    new Claim(ClaimTypes.Name, user.UserName ?? "")
+                }.Concat(roles.Select(r => new Claim(ClaimTypes.Role, r)))),
                 Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -45,7 +48,17 @@ namespace DigiGrafWeb.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwt = tokenHandler.WriteToken(token);
 
-            return Ok(new { token = jwt });
+            return Ok(new
+            { 
+                token = jwt ,
+                user = new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    fullName = user.FullName,
+                    roles
+                }
+            });
         }
 
         [HttpPost("register")]
@@ -60,7 +73,22 @@ namespace DigiGrafWeb.Controllers
             return Ok("User created");
         }
 
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                id = user.Id,
+                email = user.Email,
+                fullName = user.FullName,
+                roles
+            });
+        }
     }
-
-
 }
