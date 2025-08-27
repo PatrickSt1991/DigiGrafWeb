@@ -12,17 +12,8 @@ namespace DigiGrafWeb.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class DossierController : ControllerBase
+    public class DossierController(AppDbContext db, FuneralSession session) : ControllerBase
     {
-        private readonly FuneralSession _session;
-        private readonly AppDbContext _db;
-
-        public DossierController(AppDbContext db, FuneralSession session, 
-            UserManager<ApplicationUser> userManager)
-        {
-            _db = db;
-            _session = session;
-        }
 
         //Create Dossier
         [HttpPost("new")]
@@ -37,15 +28,15 @@ namespace DigiGrafWeb.Controllers
 
             var dossier = DossierMapper.ToEntity(request);
 
-            _db.Dossiers.Add(dossier);
-            await _db.SaveChangesAsync();
+            db.Dossiers.Add(dossier);
+            await db.SaveChangesAsync();
 
             // Update session
-            _session.FuneralLeader = dossier.FuneralLeader;
-            _session.FuneralNumber = dossier.FuneralNumber;
-            _session.NewDossierCreation = true;
-            _session.DossierCompleted = false;
-            _session.Voorregeling = dossier.Voorregeling;
+            session.FuneralLeader = dossier.FuneralLeader;
+            session.FuneralNumber = dossier.FuneralNumber;
+            session.NewDossierCreation = true;
+            session.DossierCompleted = false;
+            session.Voorregeling = dossier.Voorregeling;
 
             return Ok(DossierMapper.ToDto(dossier));
         }
@@ -54,7 +45,7 @@ namespace DigiGrafWeb.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid Id)
         {
-            var dossier = await _db.Dossiers
+            var dossier = await db.Dossiers
                 .Include(d => d.Deceased)
                 .Include(d => d.DeathInfo)
                 .FirstOrDefaultAsync(d => d.Id == Id);
@@ -69,7 +60,7 @@ namespace DigiGrafWeb.Controllers
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> UpdateDossier(Guid id, [FromBody] DossierDto dto)
         {
-            var dossier = await _db.Dossiers
+            var dossier = await db.Dossiers
                 .Include(d => d.Deceased)
                 .Include(d => d.DeathInfo)
                 .FirstOrDefaultAsync(d => d.Id == id);
@@ -127,7 +118,7 @@ namespace DigiGrafWeb.Controllers
                 if (!string.IsNullOrWhiteSpace(ddi.Origin)) di.Origin = ddi.Origin;
             }
 
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
 
             return Ok(DossierMapper.ToDto(dossier));
         }
