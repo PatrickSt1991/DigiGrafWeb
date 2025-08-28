@@ -83,11 +83,11 @@ namespace DigiGrafWeb.Mappers
     {
         public static Origins ToEntity(OriginsDto dto)
         {
-            var salutationdId = dto.Id == null || dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id.Value;
+            var originId = dto.Id == null || dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id.Value;
 
             return new Origins
             {
-                Id = salutationdId,
+                Id = originId,
                 Code = dto.Code,
                 Label = dto.Label,
                 Description = dto.Description,
@@ -113,6 +113,44 @@ namespace DigiGrafWeb.Mappers
         }
 
         public static IEnumerable<Origins> ToEntityList(IEnumerable<OriginsDto> dtos)
+        {
+            return dtos.Select(ToEntity);
+        }
+    }
+    public static class MaritalStatusMapper
+    {
+        public static MaritalStatus ToEntity(MaritalStatusDto dto)
+        {
+            var maritaldId = dto.Id == null || dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id.Value;
+
+            return new MaritalStatus
+            {
+                Id = maritaldId,
+                Code = dto.Code,
+                Label = dto.Label,
+                Description = dto.Description,
+                IsActive = dto.IsActive
+            };
+        }
+
+        public static MaritalStatusDto ToDto(MaritalStatus entity)
+        {
+            return new MaritalStatusDto
+            {
+                Id = entity.Id,
+                Code = entity.Code,
+                Label = entity.Label,
+                Description = entity.Description,
+                IsActive = entity.IsActive
+            };
+        }
+
+        public static IEnumerable<MaritalStatusDto> ToDtoList(IEnumerable<MaritalStatus> entities)
+        {
+            return entities.Select(ToDto);
+        }
+
+        public static IEnumerable<MaritalStatus> ToEntityList(IEnumerable<MaritalStatusDto> dtos)
         {
             return dtos.Select(ToEntity);
         }

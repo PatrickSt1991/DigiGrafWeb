@@ -4,6 +4,7 @@ using DigiGrafWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DigiGrafWeb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250828110753_AddMaritalStatusToDatabase")]
+    partial class AddMaritalStatusToDatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -320,55 +323,6 @@ namespace DigiGrafWeb.Migrations
                     b.ToTable("Dossiers");
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.InsuranceCompany", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("OriginEnabled")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InsuranceCompanies");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePolicy", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("InsuranceCompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("OverledeneId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PolicyNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("Premium")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InsuranceCompanyId");
-
-                    b.HasIndex("OverledeneId");
-
-                    b.ToTable("InsurancePolicies");
-                });
-
             modelBuilder.Entity("DigiGrafWeb.Models.MaritalStatus", b =>
                 {
                     b.Property<Guid>("Id")
@@ -567,25 +521,6 @@ namespace DigiGrafWeb.Migrations
                         .IsRequired();
 
                     b.Navigation("Dossier");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePolicy", b =>
-                {
-                    b.HasOne("DigiGrafWeb.Models.InsuranceCompany", "InsuranceCompany")
-                        .WithMany()
-                        .HasForeignKey("InsuranceCompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DigiGrafWeb.Models.Deceased", "Overledene")
-                        .WithMany()
-                        .HasForeignKey("OverledeneId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InsuranceCompany");
-
-                    b.Navigation("Overledene");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

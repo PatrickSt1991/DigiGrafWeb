@@ -3,7 +3,6 @@ using DigiGrafWeb.DTOs;
 using DigiGrafWeb.Mappers;
 using DigiGrafWeb.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +11,7 @@ namespace DigiGrafWeb.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class DossierController(AppDbContext db, FuneralSession session) : ControllerBase
+    public class DeceasedController(AppDbContext db, FuneralSession session) : ControllerBase
     {
 
         //Create Dossier

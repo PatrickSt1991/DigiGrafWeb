@@ -1,5 +1,4 @@
-﻿using DigiGrafWeb.DTOs;
-using DigiGrafWeb.Models;
+﻿using DigiGrafWeb.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -93,6 +92,45 @@ namespace DigiGrafWeb.Data
                 );
             }
 
+            if (!context.MaritalStatuses.Any())
+            {
+                var maritalStatuses = new[]
+                {
+                    new MaritalStatus { Id = Guid.NewGuid(), Code = "ONB", Label = "Onbekend" },
+                    new MaritalStatus { Id = Guid.NewGuid(), Code = "ONH", Label = "Ongehuwd" },
+                    new MaritalStatus { Id = Guid.NewGuid(), Code = "GEH", Label = "Gehuwd" },
+                    new MaritalStatus { Id = Guid.NewGuid(), Code = "GES", Label = "Gescheiden" },
+                    new MaritalStatus { Id = Guid.NewGuid(), Code = "WED", Label = "Weduwe/Weduwnaar" },
+                    new MaritalStatus { Id = Guid.NewGuid(), Code = "SMP", Label = "Samenwonend / partnerschap" }
+                };
+
+                foreach (var ms in maritalStatuses)
+                {
+                    if (!context.MaritalStatuses.Any(x => x.Code == ms.Code))
+                        context.MaritalStatuses.Add(ms);
+                }
+            }
+
+            var insurancecompanies = new[]
+            {
+                new InsuranceCompany { Name = "Allianz", OriginEnabled = true },
+                new InsuranceCompany { Name = "Aegon", OriginEnabled = false },
+                new InsuranceCompany { Name = "Nationale Nederlanden", OriginEnabled = false }
+            };
+
+            foreach (var ic in insurancecompanies)
+            {
+                if (!context.InsuranceCompanies.Any(y => y.Name == y.Name))
+                {
+                    context.InsuranceCompanies.Add(new InsuranceCompany
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = ic.Name,
+                        OriginEnabled = ic.OriginEnabled,
+                        IsActive = true
+                    });
+                }
+            }
 
             await context.SaveChangesAsync();
 

@@ -61,5 +61,15 @@ namespace DigiGrafWeb.Controllers
 
             return Ok(OriginsMapper.ToDtoList(origins));
         }
+        [HttpGet("maritalstatus")]
+        public async Task<ActionResult<IEnumerable<MaritalStatus>>> GetMaritalStatuses()
+        {
+            var statuses = await db.MaritalStatuses
+                .Where(m => m.IsActive)
+                .OrderBy(m => m.Label)
+                .ToListAsync();
+
+            return Ok(MaritalStatusMapper.ToDtoList(statuses));
+        }
     }
 }
