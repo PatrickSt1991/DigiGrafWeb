@@ -132,8 +132,28 @@ namespace DigiGrafWeb.Data
                 }
             }
 
-            await context.SaveChangesAsync();
+            if (!context.Coffins.Any())
+            {
+                context.Coffins.AddRange(
+                    new Coffins { Id = Guid.NewGuid(), Code = "E-023", Label = "MMHG", Description = "Massief mahonie, hoogglans gelakt" },
+                    new Coffins { Id = Guid.NewGuid(), Code = "E-022", Label = "MEOG", Description = "Massief eiken, ongelakt, geprofileerdt" },
+                    new Coffins { Id = Guid.NewGuid(), Code = "E-029h", Label = "LUXE", Description = "Uitvaartkist wit met waxfolie en houtnerf, luxe katoenen interieur met sierdeken en houten beslag" },
+                    new Coffins { Id = Guid.NewGuid(), Code = "E-028", Label = "LAK_KATOEN", Description = "Uitvaartkist, lak zwart gespoten / katoen" },
+                    new Coffins { Id = Guid.NewGuid(), Code = "E-012 Steiger", Label = "STEIGER", Description = "Massief Steigerhout, onbehandeld" }
+                );
+            }
 
+            if (!context.CoffinsLengths.Any())
+            {
+                context.CoffinsLengths.AddRange(
+                    new CoffinLengths { Id = Guid.NewGuid(), Code = "SHORT", Label = "Small", Description = "Klein" },
+                    new CoffinLengths { Id = Guid.NewGuid(), Code = "NORM", Label = "Regular", Description = "Normaal" },
+                    new CoffinLengths { Id = Guid.NewGuid(), Code = "ELB", Label = "XL-b", Description = "Extra lang & breed" },
+                    new CoffinLengths { Id = Guid.NewGuid(), Code = "SHORT", Label = "XXL-b", Description = "Extra extra lang & breed" }
+                );
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 }

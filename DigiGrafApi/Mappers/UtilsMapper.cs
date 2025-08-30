@@ -155,4 +155,97 @@ namespace DigiGrafWeb.Mappers
             return dtos.Select(ToEntity);
         }
     }
+    public static class CoffinsMapper
+    {
+        public static Coffins ToEntity(CoffinsDto dto)
+        {
+            var coffinId = dto.Id == null || dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id.Value;
+
+            return new Coffins
+            {
+                Id = coffinId,
+                Code = dto.Code,
+                Label = dto.Label,
+                Description = dto.Description,
+                IsActive = dto.IsActive
+            };
+        }
+
+        public static CoffinsDto ToDto(Coffins entity)
+        {
+            return new CoffinsDto
+            {
+                Id = entity.Id,
+                Code = entity.Code,
+                Label = entity.Label,
+                Description = entity.Description,
+                IsActive = entity.IsActive
+            };
+        }
+
+        public static IEnumerable<CoffinsDto> ToDtoList(IEnumerable<Coffins> entities)
+        {
+            return entities.Select(ToDto);
+        }
+
+        public static IEnumerable<Coffins> ToEntityList(IEnumerable<CoffinsDto> dtos)
+        {
+            return dtos.Select(ToEntity);
+        }
+    }
+    public static class CoffinsLenghtsMapper
+    {
+        public static CoffinLengths ToEntity(CoffinLengthsDto dto)
+        {
+            var coffinlengthId = dto.Id == null || dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id.Value;
+
+            return new CoffinLengths
+            {
+                Id = coffinlengthId,
+                Code = dto.Code,
+                Label = dto.Label,
+                Description = dto.Description,
+                IsActive = dto.IsActive
+            };
+        }
+
+        public static CoffinLengthsDto ToDto(CoffinLengths entity)
+        {
+            return new CoffinLengthsDto
+            {
+                Id = entity.Id,
+                Code = entity.Code,
+                Label = entity.Label,
+                Description = entity.Description,
+                IsActive = entity.IsActive
+            };
+        }
+
+        public static IEnumerable<CoffinLengthsDto> ToDtoList(IEnumerable<CoffinLengths> entities)
+        {
+            return entities.Select(ToDto);
+        }
+
+        public static IEnumerable<CoffinLengths> ToEntityList(IEnumerable<CoffinLengthsDto> dtos)
+        {
+            return dtos.Select(ToEntity);
+        }
+    }
+    public static class CaretakerMapper
+    {
+        public static CaretakerDto ToDto(ApplicationUser user)
+        {
+            return new CaretakerDto
+            {
+                Id = user.Id,
+                DisplayName = $"{user.FullName}",
+                Email = user.Email
+            };
+        }
+
+        public static IEnumerable<CaretakerDto> ToDtoList(IEnumerable<ApplicationUser> users)
+        {
+            return users.Select(ToDto);
+        }
+    }
 }

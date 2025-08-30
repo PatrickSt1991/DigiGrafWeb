@@ -15,7 +15,7 @@ namespace DigiGrafWeb.Controllers
     public class DossierUtilsController(AppDbContext db, UserManager<ApplicationUser> userManager) : ControllerBase
     {
         [HttpGet("funeral-leaders")]
-        public async Task<IActionResult> GetFuneralLeaders()
+        public async Task<ActionResult<IEnumerable<FuneralLeaderDto>>> GetFuneralLeaders()
         {
             var users = await userManager.GetUsersInRoleAsync("Uitvaartleider");
 
@@ -28,7 +28,6 @@ namespace DigiGrafWeb.Controllers
 
             return Ok(result);
         }
-
         [HttpGet("salutations")]
         public async Task<ActionResult<IEnumerable<Salutation>>> GetSalutations()
         {
@@ -39,7 +38,6 @@ namespace DigiGrafWeb.Controllers
 
             return Ok(SalutationsMapper.ToDtoList(salutations));
         }
-
         [HttpGet("bodyfindings")]
         public async Task<ActionResult<IEnumerable<BodyFinding>>> GetBodyFindings()
         {
@@ -50,7 +48,6 @@ namespace DigiGrafWeb.Controllers
 
             return Ok(BodyFindingsMapper.ToDtoList(bodyfindings));
         }
-
         [HttpGet("origins")]
         public async Task<ActionResult<IEnumerable<Origins>>> GetOrigins()
         {
@@ -71,5 +68,42 @@ namespace DigiGrafWeb.Controllers
 
             return Ok(MaritalStatusMapper.ToDtoList(statuses));
         }
+        [HttpGet("coffins")]
+        public async Task<ActionResult<IEnumerable<Coffins>>> GetCoffins()
+        {
+            var coffins = await db.Coffins
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Label)
+                .ToListAsync();
+
+            return Ok(CoffinsMapper.ToDtoList(coffins));
+        }
+        [HttpGet("coffins-length")]
+        public async Task<ActionResult<IEnumerable<CoffinLengths>>> GetCoffinLenghts()
+        {
+            var coffinslenghts = await db.CoffinsLengths
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Label)
+                .ToListAsync();
+
+            return Ok(CoffinsLenghtsMapper.ToDtoList(coffinslenghts));
+        }
+        [HttpGet("caretakers")]
+        public async Task<ActionResult<IEnumerable<CaretakerDto>>> GetCaretakers()
+        {
+            var roles = new[] { "Uitvaartleider", "Gebruikers" };
+            var caretakers = new List<ApplicationUser>();
+
+            foreach (var role in roles)
+            {
+                var usersInRole = await userManager.GetUsersInRoleAsync(role);
+                caretakers.AddRange(usersInRole);
+            }
+
+            var distinctCaretakers = caretakers.Distinct().ToList();
+
+            return Ok(CaretakerMapper.ToDtoList(distinctCaretakers));
+        }
+
     }
 }

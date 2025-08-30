@@ -34,4 +34,27 @@
         public string? Description { get; set; }
         public bool IsActive { get; set; } = true;
     }
+    public class Coffins
+    {
+        public Guid? Id { get; set; } = Guid.NewGuid();
+        public string Code { get; set; } = null!;
+        public string Label { get; set; } = null!;
+        public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+    public class CoffinLengths
+    {
+        public Guid? Id { get; set; } = Guid.NewGuid();
+        public string Code { get; set; } = null!;
+        public string Label { get; set; } = null!;
+        public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+    public class Caretaker
+    {
+        public Guid? Id { get; set; } = Guid.NewGuid();
+        public string DisplayName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+    }
+
 }

@@ -17,6 +17,8 @@ namespace DigiGrafWeb.Data
         public DbSet<MaritalStatus> MaritalStatuses { get; set; } = null!;
         public DbSet<InsuranceCompany> InsuranceCompanies { get; set; } = null!;
         public DbSet<InsurancePolicy> InsurancePolicies { get; set; } = null!;
+        public DbSet<Coffins> Coffins { get; set; } = null!;
+        public DbSet<CoffinLengths> CoffinsLengths { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
