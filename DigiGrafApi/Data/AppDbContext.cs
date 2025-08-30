@@ -19,11 +19,15 @@ namespace DigiGrafWeb.Data
         public DbSet<InsurancePolicy> InsurancePolicies { get; set; } = null!;
         public DbSet<Coffins> Coffins { get; set; } = null!;
         public DbSet<CoffinLengths> CoffinsLengths { get; set; } = null!;
+        public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<DocumentTemplate>()
+                .Property(d => d.FieldsJson)
+                .HasColumnType("nvarchar(max)");
         }
     }
 }

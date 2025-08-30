@@ -1,6 +1,8 @@
-﻿using DigiGrafWeb.Models;
+﻿using DigiGrafWeb.DTOs;
+using DigiGrafWeb.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace DigiGrafWeb.Data
 {
@@ -152,6 +154,26 @@ namespace DigiGrafWeb.Data
                     new CoffinLengths { Id = Guid.NewGuid(), Code = "SHORT", Label = "XXL-b", Description = "Extra extra lang & breed" }
                 );
             }
+
+            if (!context.DocumentTemplates.Any())
+            {
+                var defaultFields = new Dictionary<string, FieldDto>
+                {
+                    { "condolences", new FieldDto { Type = "text", Label = "Condoleance", Value = "" } },
+                    { "funeralType", new FieldDto { Type = "text", Label = "Begrafenis / Crematie", Value = "" } },
+                };
+
+                var docTemplate = new DocumentTemplate
+                {
+                    Id = Guid.NewGuid(),
+                    OverledeneId = Guid.NewGuid(),
+                    Title = "Standaard Document",
+                    FieldsJson = JsonConvert.SerializeObject(defaultFields),
+                };
+
+                context.DocumentTemplates.Add(docTemplate);
+            }
+
 
             await context.SaveChangesAsync();
         }
