@@ -1,16 +1,25 @@
-﻿namespace DigiGrafWeb.DTOs
+﻿using Newtonsoft.Json;
+
+namespace DigiGrafWeb.DTOs
 {
-    public class FieldDto
+    public class DocumentSectionDto
     {
-        public string Type { get; set; } = null!;//"text", "textarea", "checkbox" etc..
-        public string Label { get; set; } = null!;
-        public object Value { get; set; } = null!;
+        public Guid Id { get; set; } = Guid.NewGuid(); // Include Id for tracking sections
+        [JsonProperty("type")]
+        public string Type { get; set; } = "text";
+        [JsonProperty("label")]
+        public string Label { get; set; } = string.Empty;
+        [JsonProperty("value")]
+        public string Value { get; set; } = string.Empty;
     }
+
     public class DocumentTemplateDto
     {
+        public Guid Id { get; set; }
+        public Guid? OverledeneId { get; set; }
         public string Title { get; set; } = null!;
-        public Dictionary<string, FieldDto> Fields { get; set; } = null!;
-        public string? FuneralLeader { get; set; }
-        public string? FuneralNumber { get; set; }
+        [JsonProperty("sections")]
+        public List<DocumentSectionDto> Sections { get; set; } = new();
+        public bool IsDefault { get; set; } = false; // Optional: include to indicate default templates in FE
     }
 }

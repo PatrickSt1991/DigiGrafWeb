@@ -4,6 +4,7 @@ using DigiGrafWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DigiGrafWeb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250831055507_DocumentsImprovements")]
+    partial class DocumentsImprovements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -341,42 +344,15 @@ namespace DigiGrafWeb.Migrations
                     b.ToTable("Deceased");
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.DocumentSection", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DocumentTemplateId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocumentTemplateId");
-
-                    b.ToTable("DocumentSections");
-                });
-
             modelBuilder.Entity("DigiGrafWeb.Models.DocumentTemplate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
+                    b.Property<string>("FieldsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("OverledeneId")
                         .HasColumnType("uniqueidentifier");
@@ -668,17 +644,6 @@ namespace DigiGrafWeb.Migrations
                     b.Navigation("Dossier");
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.DocumentSection", b =>
-                {
-                    b.HasOne("DigiGrafWeb.Models.DocumentTemplate", "Template")
-                        .WithMany("Sections")
-                        .HasForeignKey("DocumentTemplateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Template");
-                });
-
             modelBuilder.Entity("DigiGrafWeb.Models.InsurancePolicy", b =>
                 {
                     b.HasOne("DigiGrafWeb.Models.InsuranceCompany", "InsuranceCompany")
@@ -747,11 +712,6 @@ namespace DigiGrafWeb.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.DocumentTemplate", b =>
-                {
-                    b.Navigation("Sections");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.Dossier", b =>

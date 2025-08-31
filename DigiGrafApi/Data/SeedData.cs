@@ -157,21 +157,45 @@ namespace DigiGrafWeb.Data
 
             if (!context.DocumentTemplates.Any())
             {
-                var defaultFields = new Dictionary<string, FieldDto>
+                // Template 1
+                var template1Id = Guid.NewGuid();
+                var template1Sections = new List<DocumentSection>
                 {
-                    { "condolences", new FieldDto { Type = "text", Label = "Condoleance", Value = "" } },
-                    { "funeralType", new FieldDto { Type = "text", Label = "Begrafenis / Crematie", Value = "" } },
+                    new DocumentSection { Type = "text", Label = "Header", Value = "Uitvaart Centrum Logo / Header" },
+                    new DocumentSection { Type = "textarea", Label = "Body", Value = "Hier komt de hoofdtekst van het document..." },
+                    new DocumentSection { Type = "text", Label = "Footer", Value = "Contactgegevens en eventuele voetnoten" }
                 };
 
-                var docTemplate = new DocumentTemplate
+                var template1 = new DocumentTemplate
                 {
-                    Id = Guid.NewGuid(),
-                    OverledeneId = Guid.NewGuid(),
+                    Id = template1Id,
+                    OverledeneId = null,
                     Title = "Standaard Document",
-                    FieldsJson = JsonConvert.SerializeObject(defaultFields),
+                    Sections = template1Sections,
+                    IsDefault = true
                 };
 
-                context.DocumentTemplates.Add(docTemplate);
+                // Template 2
+                var template2Id = Guid.NewGuid();
+                var template2Sections = new List<DocumentSection>
+                {
+                    new DocumentSection { Type = "text", Label = "Header", Value = "Koffie Document Header" },
+                    new DocumentSection { Type = "textarea", Label = "Body", Value = "Aantal kannen koffie: 3\nAantal koeken: 2" },
+                    new DocumentSection { Type = "text", Label = "Footer", Value = "Dit document is automatisch gegenereerd" }
+                };
+
+                var template2 = new DocumentTemplate
+                {
+                    Id = template2Id,
+                    OverledeneId = null,
+                    Title = "Koffie Document",
+                    Sections = template2Sections,
+                    IsDefault = true
+                };
+
+                context.DocumentTemplates.AddRange(template1, template2);
+
+                await context.SaveChangesAsync();
             }
 
 

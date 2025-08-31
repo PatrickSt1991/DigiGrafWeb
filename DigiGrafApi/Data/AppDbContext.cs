@@ -20,14 +20,29 @@ namespace DigiGrafWeb.Data
         public DbSet<Coffins> Coffins { get; set; } = null!;
         public DbSet<CoffinLengths> CoffinsLengths { get; set; } = null!;
         public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
+        public DbSet<DocumentSection> DocumentSections { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             builder.Entity<DocumentTemplate>()
-                .Property(d => d.FieldsJson)
-                .HasColumnType("nvarchar(max)");
+                .HasMany(d => d.Sections)
+                .WithOne(s => s.Template)
+                .HasForeignKey(s => s.DocumentTemplateId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<DocumentSection>()
+                .Property(s => s.Id)
+                .ValueGeneratedOnAdd();
+
+            builder.Entity<DocumentSection>()
+                .Property(s => s.Label)
+                .IsRequired();
+
+            builder.Entity<DocumentSection>()
+                .Property(s => s.Type)
+                .IsRequired();
         }
     }
 }
