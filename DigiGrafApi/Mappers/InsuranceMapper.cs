@@ -8,17 +8,17 @@ namespace DigiGrafWeb.Mappers
         public static InsuranceCompanyDto ToDto(this InsuranceCompany entity) => new()
         {
             Id = entity.Id,
-            Name = entity.Name,
+            Label = entity.Label,
+            Value = entity.Value,
             IsActive = entity.IsActive,
-            OriginEnabled = entity.OriginEnabled
         };
 
         public static InsuranceCompany ToEntity(this InsuranceCompanyDto dto) => new()
         {
             Id = dto.Id != Guid.Empty ? dto.Id : Guid.NewGuid(),
-            Name = dto.Name,
+            Label = dto.Label,
+            Value = dto.Value,
             IsActive = dto.IsActive,
-            OriginEnabled = dto.OriginEnabled
         };
 
         public static InsurancePolicyDto ToDto(this InsurancePolicy entity) => new()

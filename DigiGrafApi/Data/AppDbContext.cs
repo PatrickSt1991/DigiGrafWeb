@@ -21,6 +21,8 @@ namespace DigiGrafWeb.Data
         public DbSet<CoffinLengths> CoffinsLengths { get; set; } = null!;
         public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
         public DbSet<DocumentSection> DocumentSections { get; set; } = null!;
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<PriceComponent> PriceComponents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

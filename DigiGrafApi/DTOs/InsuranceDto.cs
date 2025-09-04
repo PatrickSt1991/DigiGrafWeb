@@ -3,9 +3,9 @@
     public class InsuranceCompanyDto
     {
         public Guid? Id { get; set; }
-        public string Name { get; set; } = "";
+        public string Label { get; set; } = "";
+        public string Value { get; set; } = "";
         public bool IsActive { get; set; } = true;
-        public bool OriginEnabled { get; set; } = true;
     }
 
     public class InsurancePolicyDto
