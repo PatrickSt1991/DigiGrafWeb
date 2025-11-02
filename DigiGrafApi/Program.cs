@@ -1,5 +1,7 @@
 using DigiGrafWeb.Data;
 using DigiGrafWeb.Models;
+using DigiGrafWeb.Processors;
+using DigiGrafWeb.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,8 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSingleton<LicenseService>();
+builder.Services.AddScoped<LicenseProcessor>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
