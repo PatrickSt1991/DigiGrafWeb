@@ -8,6 +8,7 @@ namespace DigiGrafWeb.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        public DbSet<License> Licenses { get; set; }
         public DbSet<Dossier> Dossiers { get; set; }
         public DbSet<Deceased> Deceased { get; set; }
         public DbSet<DeathInfo> DeathInfos { get; set; }

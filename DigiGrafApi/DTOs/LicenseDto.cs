@@ -8,11 +8,8 @@
         public int MaxUsers { get; set; }
         public bool CanAddUsers { get; set; }
         public DateTime? ExpiresAt { get; set; }
-        public string[] Features { get; set; } = [];
+        public string[] Features { get; set; } = Array.Empty<string>();
         public string? Message { get; set; }
-    }
-    public class LicenseUploadDto
-    {
-        public IFormFile LicenseFile { get; set; }
+        public string LicenseKey { get; set; } = string.Empty;
     }
 }

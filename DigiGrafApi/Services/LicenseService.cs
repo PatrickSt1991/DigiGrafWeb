@@ -1,68 +1,175 @@
-﻿using System.Text.Json;
+﻿using DigiGrafWeb.Data;
 using DigiGrafWeb.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Text.Json;
+
 
 namespace DigiGrafWeb.Services
 {
     public class LicenseService
     {
-        private readonly IWebHostEnvironment _env;
-        private readonly ILogger<LicenseService> _logger;
-        private const string LicenseFileName = "license.lic";
+        private readonly AppDbContext _db;
 
-        public LicenseService(IWebHostEnvironment env, ILogger<LicenseService> logger)
+
+        public LicenseService(AppDbContext db)
         {
-            _env = env;
-            _logger = logger;
+            _db = db;
         }
 
-        private string LicenseFilePath => Path.Combine(_env.ContentRootPath, LicenseFileName);
 
-        public License GetLicense()
+        public async Task<License> GetLicenseAsync()
         {
-            if (!File.Exists(LicenseFilePath))
+            var entity = await _db.Licenses.FirstOrDefaultAsync();
+            if (entity == null)
             {
-                return new License(); // default free tier
+                return new License
+                {
+                    Plan = "Free",
+                    IsValid = false,
+                    CurrentUsers = 0,
+                    MaxUsers = 0,
+                    CanAddUsers = false,
+                    Message = "No license active"
+                };
+            }
+            return entity;
+        }
+
+
+        public async Task<(bool success, string message)> LoadLicenseFromKeyAsync(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return (false, "License key cannot be empty");
+
+
+            var license = ParseKey(key);
+            if (license == null)
+                return (false, "Invalid license format");
+
+
+            var entity = await _db.Licenses.FirstOrDefaultAsync();
+            if (entity == null)
+            {
+                license.LicenseKey = key;
+                _db.Licenses.Add(license);
+            }
+            else
+            {
+                entity.Plan = license.Plan;
+                entity.IsValid = license.IsValid;
+                entity.CurrentUsers = license.CurrentUsers;
+                entity.MaxUsers = license.MaxUsers;
+                entity.CanAddUsers = license.CanAddUsers;
+                entity.ExpiresAt = license.ExpiresAt;
+                entity.Features = string.Join(",", license.Features.Split(","));
+                entity.Message = license.Message;
+                entity.LicenseKey = key;
             }
 
+
+            await _db.SaveChangesAsync();
+            return (true, "License activated successfully");
+        }
+
+
+        public async Task<(bool success, string message)> LoadLicenseFromFileAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return (false, "No file uploaded");
+
+
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var key = Encoding.UTF8.GetString(ms.ToArray()).Trim();
+            return await LoadLicenseFromKeyAsync(key);
+        }
+
+
+        private License? ParseKey(string key)
+        {
             try
             {
-                var json = File.ReadAllText(LicenseFilePath);
-                var license = JsonSerializer.Deserialize<License>(json);
-                return license ?? new License { IsValid = false, Message = "Invalid license file." };
+                if (string.IsNullOrWhiteSpace(key))
+                    return null;
+
+                // Normalize: remove CR/LF, spaces, tabs, BOMs
+                key = key.Replace("\r", "")
+                         .Replace("\n", "")
+                         .Replace(" ", "")
+                         .Replace("\t", "")
+                         .Trim();
+
+                byte[] bytes;
+
+                // Try strict Base64 first
+                try
+                {
+                    bytes = Convert.FromBase64String(key);
+                }
+                catch
+                {
+                    // If it fails, assume plain JSON instead of Base64
+                    bytes = Encoding.UTF8.GetBytes(key);
+                }
+
+                var json = Encoding.UTF8.GetString(bytes);
+
+                // Sometimes the decoded string still contains leading BOMs or quotes
+                json = json.Trim('\uFEFF', '\"', '\'', ' ', '\r', '\n');
+
+                // Parse JSON safely
+                using var doc = JsonDocument.Parse(json);
+
+                if (!doc.RootElement.TryGetProperty("license", out var licEl))
+                    return null;
+
+                var features = new List<string>();
+                if (licEl.TryGetProperty("features", out var fEl) && fEl.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var f in fEl.EnumerateArray())
+                    {
+                        var val = f.GetString();
+                        if (!string.IsNullOrWhiteSpace(val))
+                            features.Add(val);
+                    }
+                }
+
+                var plan = licEl.TryGetProperty("plan", out var planEl)
+                    ? planEl.GetString() ?? "Free"
+                    : "Free";
+
+                var maxUsers = licEl.TryGetProperty("maxUsers", out var maxEl)
+                    ? maxEl.GetInt32()
+                    : 0;
+
+                DateTime? expires = null;
+                if (licEl.TryGetProperty("expiresDate", out var expEl))
+                {
+                    var expStr = expEl.GetString();
+                    if (DateTime.TryParse(expStr, out var parsed))
+                        expires = parsed;
+                }
+
+                return new License
+                {
+                    Plan = plan,
+                    IsValid = true,
+                    CurrentUsers = 0,
+                    MaxUsers = maxUsers,
+                    CanAddUsers = true,
+                    ExpiresAt = expires,
+                    Features = string.Join(",", features),
+                    Message = "License loaded successfully"
+                };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to read license file");
-                return new License { IsValid = false, Message = "Corrupted license file." };
+                Console.WriteLine($"ParseKey failed: {ex.Message}");
+                return null;
             }
         }
 
-        public void SaveLicense(License license)
-        {
-            var json = JsonSerializer.Serialize(license, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(LicenseFilePath, json);
-        }
-
-        public License ValidateLicenseKey(string key)
-        {
-            // 💡 Replace this logic with your actual key validation
-            if (key == "DG-COMMERCIAL-2025")
-            {
-                var license = new License
-                {
-                    Plan = "Commercial",
-                    IsValid = true,
-                    MaxUsers = 999,
-                    Features = new[] { "All Features", "Advanced Analytics" },
-                    ExpiresAt = DateTime.UtcNow.AddYears(1),
-                    Message = "Commercial license activated."
-                };
-
-                SaveLicense(license);
-                return license;
-            }
-
-            return new License { IsValid = false, Message = "Invalid or expired license key." };
-        }
     }
 }

@@ -1,64 +1,60 @@
-﻿using DigiGrafWeb.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using DigiGrafWeb.Services;
-using DigiGrafWeb.Mappers;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using DigiGrafWeb.DTOs;
+using DigiGrafWeb.Models;
+using System.Linq;
 
 namespace DigiGrafWeb.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class LicenseController : ControllerBase
     {
-        private readonly LicenseService _licenseService;
-        private readonly AppDbContext _db;
+        private readonly LicenseService _service;
 
-        public LicenseController(LicenseService licenseService, AppDbContext db)
+        public LicenseController(LicenseService service)
         {
-            _licenseService = licenseService;
-            _db = db;
+            _service = service;
         }
 
         [HttpGet("info")]
-        public IActionResult GetInfo()
+        public async Task<IActionResult> GetInfo()
         {
-            var license = _licenseService.GetLicense();
-            license.CurrentUsers = _db.Users.Count(u => u.IsActive);
-            return Ok(LicenseMapper.ToDto(license));
+            var license = await _service.GetLicenseAsync();
+
+            // Convert DB model → Frontend DTO
+            var dto = new LicenseDto
+            {
+                Plan = license.Plan,
+                IsValid = license.IsValid,
+                CurrentUsers = license.CurrentUsers,
+                MaxUsers = license.MaxUsers,
+                CanAddUsers = license.CanAddUsers,
+                ExpiresAt = license.ExpiresAt,
+                Features = (license.Features ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(f => f.Trim())
+                    .ToArray(),
+                Message = license.Message,
+                LicenseKey = license.LicenseKey
+            };
+
+            return Ok(dto);
         }
 
         [HttpPost("upload")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadLicense([FromForm] LicenseUploadDto dto)
+        public async Task<IActionResult> Upload([FromForm] LicenseUploadDto dto)
         {
-            if (dto.LicenseFile == null || dto.LicenseFile.Length == 0)
-                return BadRequest(new { message = "No license file uploaded." });
-
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "license.lic");
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await dto.LicenseFile.CopyToAsync(stream);
-            }
-
-            var license = _licenseService.GetLicense();
-            license.CurrentUsers = _db.Users.Count(u => u.IsActive);
-            return Ok(LicenseMapper.ToDto(license));
+            var (success, message) = await _service.LoadLicenseFromFileAsync(dto.LicenseFile);
+            return success ? Ok(new { message }) : BadRequest(new { message });
         }
 
         [HttpPost("validate-key")]
-        public IActionResult ValidateKey([FromBody] Dictionary<string, string> payload)
+        public async Task<IActionResult> ValidateKey([FromBody] LicenseKeyRequestDto request)
         {
-            if (!payload.TryGetValue("licenseKey", out var key) || string.IsNullOrWhiteSpace(key))
-                return BadRequest(new { message = "License key missing." });
-
-            var license = _licenseService.ValidateLicenseKey(key);
-            if (!license.IsValid)
-                return BadRequest(new { message = license.Message });
-
-            license.CurrentUsers = _db.Users.Count(u => u.IsActive);
-            return Ok(LicenseMapper.ToDto(license));
+            var (success, message) = await _service.LoadLicenseFromKeyAsync(request.LicenseKey);
+            return success ? Ok(new { message }) : BadRequest(new { message });
         }
     }
 }

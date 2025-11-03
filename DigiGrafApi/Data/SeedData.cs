@@ -14,7 +14,10 @@ namespace DigiGrafWeb.Data
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-            await context.Database.MigrateAsync();
+            // --------- DEVELOPMENT ONLY: Drop and recreate DB ----------
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+            // ------------------------------------------------------------
 
             // Roles
             string[] roles = { "Admin", "Uitvaartleider", "Gebruiker", "Financieel" };
@@ -54,178 +57,201 @@ namespace DigiGrafWeb.Data
                 new { Code = "MX", Label = "Mx." }
             };
             foreach (var s in dutchSalutations)
-                if (!context.Salutations.Any(x => x.Code == s.Code))
-                    context.Salutations.Add(new Salutation { Id = Guid.NewGuid(), Code = s.Code, Label = s.Label, IsActive = true });
+                context.Salutations.Add(new Salutation { Id = Guid.NewGuid(), Code = s.Code, Label = s.Label, IsActive = true });
 
             // Body Findings
-            if (!context.BodyFindings.Any())
-            {
-                context.BodyFindings.AddRange(
-                    new BodyFinding { Id = Guid.NewGuid(), Code = "ND_NL", Label = "Natuurlijke dood + geen lijkvinding" },
-                    new BodyFinding { Id = Guid.NewGuid(), Code = "ND_L", Label = "Natuurlijke dood + lijkvinding" },
-                    new BodyFinding { Id = Guid.NewGuid(), Code = "NND_L", Label = "Niet natuurlijke dood + lijkvinding" },
-                    new BodyFinding { Id = Guid.NewGuid(), Code = "NND_NL", Label = "Niet natuurlijke dood + geen lijkvinding" }
-                );
-            }
+            context.BodyFindings.AddRange(
+                new BodyFinding { Id = Guid.NewGuid(), Code = "ND_NL", Label = "Natuurlijke dood + geen lijkvinding" },
+                new BodyFinding { Id = Guid.NewGuid(), Code = "ND_L", Label = "Natuurlijke dood + lijkvinding" },
+                new BodyFinding { Id = Guid.NewGuid(), Code = "NND_L", Label = "Niet natuurlijke dood + lijkvinding" },
+                new BodyFinding { Id = Guid.NewGuid(), Code = "NND_NL", Label = "Niet natuurlijke dood + geen lijkvinding" }
+            );
 
             // Origins
-            if (!context.Origins.Any())
-                context.Origins.AddRange(
-                    new Origins { Id = Guid.NewGuid(), Code = "OO_01", Label = "Origin 01" },
-                    new Origins { Id = Guid.NewGuid(), Code = "OO_02", Label = "Origin 02" }
-                );
+            context.Origins.AddRange(
+                new Origins { Id = Guid.NewGuid(), Code = "OO_01", Label = "Origin 01" },
+                new Origins { Id = Guid.NewGuid(), Code = "OO_02", Label = "Origin 02" }
+            );
 
             // Marital Statuses
-            if (!context.MaritalStatuses.Any())
-            {
-                context.MaritalStatuses.AddRange(
-                    new MaritalStatus { Id = Guid.NewGuid(), Code = "ONB", Label = "Onbekend" },
-                    new MaritalStatus { Id = Guid.NewGuid(), Code = "ONH", Label = "Ongehuwd" },
-                    new MaritalStatus { Id = Guid.NewGuid(), Code = "GEH", Label = "Gehuwd" },
-                    new MaritalStatus { Id = Guid.NewGuid(), Code = "GES", Label = "Gescheiden" },
-                    new MaritalStatus { Id = Guid.NewGuid(), Code = "WED", Label = "Weduwe/Weduwnaar" },
-                    new MaritalStatus { Id = Guid.NewGuid(), Code = "SMP", Label = "Samenwonend / partnerschap" }
-                );
-            }
+            context.MaritalStatuses.AddRange(
+                new MaritalStatus { Id = Guid.NewGuid(), Code = "ONB", Label = "Onbekend" },
+                new MaritalStatus { Id = Guid.NewGuid(), Code = "ONH", Label = "Ongehuwd" },
+                new MaritalStatus { Id = Guid.NewGuid(), Code = "GEH", Label = "Gehuwd" },
+                new MaritalStatus { Id = Guid.NewGuid(), Code = "GES", Label = "Gescheiden" },
+                new MaritalStatus { Id = Guid.NewGuid(), Code = "WED", Label = "Weduwe/Weduwnaar" },
+                new MaritalStatus { Id = Guid.NewGuid(), Code = "SMP", Label = "Samenwonend / partnerschap" }
+            );
 
             // Insurance Companies
-            if (!context.InsuranceCompanies.Any())
-            {
-                context.InsuranceCompanies.AddRange(
-                    new InsuranceCompany { Id = Guid.NewGuid(), Label = "Allianz", IsActive = true },
-                    new InsuranceCompany { Id = Guid.NewGuid(), Label = "Aegon", IsActive = true },
-                    new InsuranceCompany { Id = Guid.NewGuid(), Label = "Nationale Nederlanden",  IsActive = true }
-                );
-            }
+            context.InsuranceCompanies.AddRange(
+                new InsuranceCompany { Id = Guid.NewGuid(), Label = "Allianz", IsActive = true },
+                new InsuranceCompany { Id = Guid.NewGuid(), Label = "Aegon", IsActive = true },
+                new InsuranceCompany { Id = Guid.NewGuid(), Label = "Nationale Nederlanden", IsActive = true }
+            );
 
             // Coffins
-            if (!context.Coffins.Any())
-            {
-                context.Coffins.AddRange(
-                    new Coffins { Id = Guid.NewGuid(), Code = "E-023", Label = "MMHG", Description = "Massief mahonie, hoogglans gelakt" },
-                    new Coffins { Id = Guid.NewGuid(), Code = "E-022", Label = "MEOG", Description = "Massief eiken, ongelakt, geprofileerdt" },
-                    new Coffins { Id = Guid.NewGuid(), Code = "E-029h", Label = "LUXE", Description = "Uitvaartkist wit met waxfolie en houtnerf, luxe katoenen interieur met sierdeken en houten beslag" },
-                    new Coffins { Id = Guid.NewGuid(), Code = "E-028", Label = "LAK_KATOEN", Description = "Uitvaartkist, lak zwart gespoten / katoen" },
-                    new Coffins { Id = Guid.NewGuid(), Code = "E-012 Steiger", Label = "STEIGER", Description = "Massief Steigerhout, onbehandeld" }
-                );
-            }
+            context.Coffins.AddRange(
+                new Coffins { Id = Guid.NewGuid(), Code = "E-023", Label = "MMHG", Description = "Massief mahonie, hoogglans gelakt" },
+                new Coffins { Id = Guid.NewGuid(), Code = "E-022", Label = "MEOG", Description = "Massief eiken, ongelakt, geprofileerdt" },
+                new Coffins { Id = Guid.NewGuid(), Code = "E-029h", Label = "LUXE", Description = "Uitvaartkist wit met waxfolie en houtnerf, luxe katoenen interieur met sierdeken en houten beslag" },
+                new Coffins { Id = Guid.NewGuid(), Code = "E-028", Label = "LAK_KATOEN", Description = "Uitvaartkist, lak zwart gespoten / katoen" },
+                new Coffins { Id = Guid.NewGuid(), Code = "E-012 Steiger", Label = "STEIGER", Description = "Massief Steigerhout, onbehandeld" }
+            );
 
             // Coffin Lengths
-            if (!context.CoffinsLengths.Any())
-            {
-                context.CoffinsLengths.AddRange(
-                    new CoffinLengths { Id = Guid.NewGuid(), Code = "SHORT", Label = "Small", Description = "Klein" },
-                    new CoffinLengths { Id = Guid.NewGuid(), Code = "NORM", Label = "Regular", Description = "Normaal" },
-                    new CoffinLengths { Id = Guid.NewGuid(), Code = "XL", Label = "XL-b", Description = "Extra lang & breed" },
-                    new CoffinLengths { Id = Guid.NewGuid(), Code = "XXL", Label = "XXL-b", Description = "Extra extra lang & breed" }
-                );
-            }
+            context.CoffinsLengths.AddRange(
+                new CoffinLengths { Id = Guid.NewGuid(), Code = "SHORT", Label = "Small", Description = "Klein" },
+                new CoffinLengths { Id = Guid.NewGuid(), Code = "NORM", Label = "Regular", Description = "Normaal" },
+                new CoffinLengths { Id = Guid.NewGuid(), Code = "XL", Label = "XL-b", Description = "Extra lang & breed" },
+                new CoffinLengths { Id = Guid.NewGuid(), Code = "XXL", Label = "XXL-b", Description = "Extra extra lang & breed" }
+            );
 
-            // Document Templates
-            if (!context.DocumentTemplates.Any())
+            // Document Templates & Sections (with exact previous IDs/content)
+            var templateKoffieId = Guid.Parse("68316941-68A7-4ABF-BDCD-B0F0C5E8E9E7");
+            var templateStandaardId = Guid.Parse("D2EB48A3-1D5E-4803-B7DF-F5D2B223437D");
+
+            var templates = new List<DocumentTemplate>
             {
-                context.DocumentTemplates.AddRange(
-                    new DocumentTemplate
+                new DocumentTemplate
+                {
+                    Id = templateKoffieId,
+                    Title = "Koffie Document",
+                    IsDefault = true,
+                    Sections = new List<DocumentSection>
                     {
-                        Id = Guid.NewGuid(),
-                        OverledeneId = null,
-                        Title = "Standaard Document",
-                        Sections = new List<DocumentSection>
+                        new DocumentSection
                         {
-                            new DocumentSection { Id = Guid.NewGuid(), Type = "text", Label = "Header", Value = "Uitvaart Centrum Logo / Header" },
-                            new DocumentSection { Id = Guid.NewGuid(), Type = "textarea", Label = "Body", Value = "Hier komt de hoofdtekst van het document..." },
-                            new DocumentSection { Id = Guid.NewGuid(), Type = "text", Label = "Footer", Value = "Contactgegevens en eventuele voetnoten" }
+                            Id = Guid.Parse("314AE355-82C9-4933-9822-11B88C7E2D0A"),
+                            Type = "textarea",
+                            Label = "Body",
+                            Value = @"<div style=""font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;"">
+  <div style=""margin-bottom: 30px;"">
+    <div style=""display: flex; margin-bottom: 10px;"">
+      <div style=""width: 200px; font-weight: bold;"">Dag</div>
+      <div style=""flex: 1; border-bottom: 1px dotted #ccc;""></div>
+    </div>
+    <div style=""display: flex; margin-bottom: 10px;"">
+      <div style=""width: 200px; font-weight: bold;"">Naam</div>
+      <div style=""flex: 1; border-bottom: 1px dotted #ccc;""></div>
+    </div>
+    ...
+</div>"
                         },
-                        IsDefault = true
-                    },
-                    new DocumentTemplate
-                    {
-                        Id = Guid.NewGuid(),
-                        OverledeneId = null,
-                        Title = "Koffie Document",
-                        Sections = new List<DocumentSection>
+                        new DocumentSection
                         {
-                            new DocumentSection { Id = Guid.NewGuid(), Type = "text", Label = "Header", Value = "Koffie Document Header" },
-                            new DocumentSection { Id = Guid.NewGuid(), Type = "textarea", Label = "Body", Value = "Aantal kannen koffie: 3\nAantal koeken: 2" },
-                            new DocumentSection { Id = Guid.NewGuid(), Type = "text", Label = "Footer", Value = "Dit document is automatisch gegenereerd" }
+                            Id = Guid.Parse("97604C6C-BF86-49BC-84AE-64DD91518CB4"),
+                            Type = "text",
+                            Label = "Footer",
+                            Value = "Dit document is automatisch gegenereerd"
+                        }
+                    }
+                },
+                new DocumentTemplate
+                {
+                    Id = templateStandaardId,
+                    Title = "Standaard Document",
+                    IsDefault = true,
+                    Sections = new List<DocumentSection>
+                    {
+                        new DocumentSection
+                        {
+                            Id = Guid.Parse("40CA01C6-EF3E-4CF9-BFE8-67A59632A53B"),
+                            Type = "text",
+                            Label = "Header",
+                            Value = @"<div style=""text-align: center; padding: 15px 0; border-bottom: 1px solid #e0e0e0; margin-bottom: 20px;"">
+  <img src=""https://www.uitvaartverzorging-eefting.nl/templates/img/logo.jpg"" alt=""logo"" style=""max-height: 80px; margin-bottom: 15px;"" />
+  <h1 style=""color: #333; margin: 0; font-size: 24px; font-weight: 600;"">Aanvraagformulier koffiekamer / condoleance</h1>
+</div>"
                         },
-                        IsDefault = true
+                        new DocumentSection
+                        {
+                            Id = Guid.Parse("CD492801-DA2F-4138-84C8-3DAF0E8BEB2D"),
+                            Type = "text",
+                            Label = "Footer",
+                            Value = "Contactgegevens en eventuele voetnoten"
+                        },
+                        new DocumentSection
+                        {
+                            Id = Guid.Parse("B5BEF6E8-71CE-4CD4-8CB0-97E891127234"),
+                            Type = "textarea",
+                            Label = "Body",
+                            Value = "Hier komt de hoofdtekst van het document..."
+                        },
+                        new DocumentSection
+                        {
+                            Id = Guid.Parse("6A72F65C-A0DC-40CC-9CEE-40148D180CD0"),
+                            Type = "text",
+                            Label = "Header",
+                            Value = "Uitvaart Centrum Logo / Header"
+                        }
                     }
-                );
-            }
+                }
+            };
+            context.DocumentTemplates.AddRange(templates);
 
-            if (!context.Dossiers.Any())
+            // Dossiers
+            var dossier1 = new Dossier { Id = Guid.NewGuid(), FuneralNumber = "1", FuneralLeader = "Patrick 1" };
+            var dossier2 = new Dossier { Id = Guid.NewGuid(), FuneralNumber = "2", FuneralLeader = "Patrick 2" };
+            context.Dossiers.AddRange(dossier1, dossier2);
+
+            await context.SaveChangesAsync();
+
+            // Deceased + Invoices + PriceComponents
+            var deceased1 = new Deceased
             {
-                var dossier1 = new Dossier { Id = Guid.NewGuid(), FuneralNumber  = "1", FuneralLeader = "Patrick 1" };
-                var dossier2 = new Dossier { Id = Guid.NewGuid(), FuneralNumber = "2", FuneralLeader = "Patrick 2" };
-                context.Dossiers.AddRange(dossier1, dossier2);
-                await context.SaveChangesAsync();
-            }
-
-
-            // Seed Deceased + Invoices + PriceComponents
-            if (!context.Deceased.Any())
+                Id = Guid.NewGuid(),
+                FirstName = "Jan",
+                LastName = "Jansen",
+                Dob = new DateTime(1945, 5, 10),
+                DossierId = dossier1.Id
+            };
+            var deceased2 = new Deceased
             {
-                var dossiers = context.Dossiers.Take(2).ToList();
+                Id = Guid.NewGuid(),
+                FirstName = "Maria",
+                LastName = "de Vries",
+                Dob = new DateTime(1950, 8, 15),
+                DossierId = dossier2.Id
+            };
+            context.Deceased.AddRange(deceased1, deceased2);
+            await context.SaveChangesAsync();
 
-                var deceased1 = new Deceased
+            var insuranceList = context.InsuranceCompanies.ToList();
+
+            var invoice1 = new Invoice
+            {
+                Id = Guid.NewGuid(),
+                DeceasedId = deceased1.Id,
+                SelectedVerzekeraar = insuranceList.First().Label,
+                DiscountAmount = 50,
+                Subtotal = 1000,
+                Total = 950,
+                PriceComponents = new List<PriceComponent>
                 {
-                    Id = Guid.NewGuid(),
-                    FirstName = "Jan",
-                    LastName = "Jansen",
-                    Dob = new DateTime(1945, 5, 10),
-                    DossierId = dossiers[0].Id
-                };
+                    new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Kist", Aantal = 1, Bedrag = 500 },
+                    new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Rouwbloemen", Aantal = 2, Bedrag = 100 },
+                    new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Ceremonie", Aantal = 1, Bedrag = 400 }
+                }
+            };
 
-                var deceased2 = new Deceased
+            var invoice2 = new Invoice
+            {
+                Id = Guid.NewGuid(),
+                DeceasedId = deceased2.Id,
+                SelectedVerzekeraar = insuranceList.Skip(1).First().Label,
+                DiscountAmount = 0,
+                Subtotal = 750,
+                Total = 750,
+                PriceComponents = new List<PriceComponent>
                 {
-                    Id = Guid.NewGuid(),
-                    FirstName = "Maria",
-                    LastName = "de Vries",
-                    Dob = new DateTime(1950, 8, 15),
-                    DossierId = dossiers[1].Id
-                };
+                    new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Kist", Aantal = 1, Bedrag = 400 },
+                    new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Transport", Aantal = 1, Bedrag = 100 },
+                    new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Bloemen", Aantal = 3, Bedrag = 250 }
+                }
+            };
 
-                context.Deceased.AddRange(deceased1, deceased2);
-                await context.SaveChangesAsync();
-
-                var insuranceList = context.InsuranceCompanies.ToList();
-
-                var invoice1 = new Invoice
-                {
-                    Id = Guid.NewGuid(),
-                    DeceasedId = deceased1.Id,
-                    SelectedVerzekeraar = insuranceList.First().Label,
-                    DiscountAmount = 50,
-                    Subtotal = 1000,
-                    Total = 950,
-                    PriceComponents = new List<PriceComponent>
-                    {
-                        new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Kist", Aantal = 1, Bedrag = 500 },
-                        new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Rouwbloemen", Aantal = 2, Bedrag = 100 },
-                        new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Ceremonie", Aantal = 1, Bedrag = 400 }
-                    }
-                };
-
-                var invoice2 = new Invoice
-                {
-                    Id = Guid.NewGuid(),
-                    DeceasedId = deceased2.Id,
-                    SelectedVerzekeraar = insuranceList.Skip(1).First().Label,
-                    DiscountAmount = 0,
-                    Subtotal = 750,
-                    Total = 750,
-                    PriceComponents = new List<PriceComponent>
-                    {
-                        new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Kist", Aantal = 1, Bedrag = 400 },
-                        new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Transport", Aantal = 1, Bedrag = 100 },
-                        new PriceComponent { Id = Guid.NewGuid(), Omschrijving = "Bloemen", Aantal = 3, Bedrag = 250 }
-                    }
-                };
-
-                context.Invoices.AddRange(invoice1, invoice2);
-            }
-
+            context.Invoices.AddRange(invoice1, invoice2);
             await context.SaveChangesAsync();
         }
     }
