@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 
 namespace DigiGrafWeb.Controllers
 {
@@ -103,6 +104,45 @@ namespace DigiGrafWeb.Controllers
             var distinctCaretakers = caretakers.Distinct().ToList();
 
             return Ok(CaretakerMapper.ToDtoList(distinctCaretakers));
+        }
+        [HttpGet("suppliers")]
+        public async Task<ActionResult<IEnumerable<SupplierDto>>> GetSuppliers()
+        {
+            var suppliers = await db.Suppliers
+                .Where(s => s.IsActive)
+                .Select(s => new Suppliers
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Description = s.Description,
+                    Type = s.Type,
+                    IsActive = s.IsActive
+                })
+                .OrderBy(s => s.Name)
+                .ToListAsync();
+
+            return Ok(SupplierMapper.ToDtoList(suppliers));
+        }
+        [HttpGet("supplier-types")]
+        public ActionResult<IEnumerable<SupplierTypeDto>> GetSupplierTypes()
+        {
+            var result = Enum.GetValues<SupplierType>()
+                .Select(t => new SupplierTypeDto
+                {
+                    Code = t.ToString(),
+                    Label = t.GetDisplayName()
+                });
+
+            return Ok(result);
+        }
+        [HttpGet("employees")]
+        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployees()
+        {
+            var employees = await db.Employees
+                .OrderBy(e => e.LastName)
+                .ToListAsync();
+
+            return Ok(EmployeeMapper.ToDtoList(employees));
         }
 
     }

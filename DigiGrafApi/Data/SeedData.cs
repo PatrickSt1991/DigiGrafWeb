@@ -59,6 +59,43 @@ namespace DigiGrafWeb.Data
             foreach (var s in dutchSalutations)
                 context.Salutations.Add(new Salutation { Id = Guid.NewGuid(), Code = s.Code, Label = s.Label, IsActive = true });
 
+            // Employees
+            context.Employees.AddRange(
+                new Employee
+                {
+                    Id = Guid.NewGuid(),
+                    IsActive = true,
+                    Initials = "J.D.",
+                    FirstName = "Jan",
+                    LastName = "Doe",
+                    Tussenvoegsel = "de",
+                    BirthPlace = "Amsterdam",
+                    BirthDate = new DateOnly(1985, 5, 15),
+                    Email = "j.doe@company.nl",
+                    Mobile = "06-12345678",
+                    Role = "Uitvaartbegeleider",
+                    StartDate = new DateOnly(2020, 1, 15)
+                },
+                new Employee
+                {
+                    Id = Guid.NewGuid(),
+                    IsActive = false,
+                    Initials = "M.S.",
+                    FirstName = "Maria",
+                    LastName = "Smith",
+                    Tussenvoegsel = "van",
+                    BirthPlace = "Rotterdam",
+                    BirthDate = new DateOnly(1982, 8, 22),
+                    Email = "m.smith@company.nl",
+                    Mobile = "06-87654321",
+                    Role = "Administratief",
+                    StartDate = new DateOnly(2019, 3, 1)
+                }
+            );
+
+            await context.SaveChangesAsync();
+
+
             // Body Findings
             context.BodyFindings.AddRange(
                 new BodyFinding { Id = Guid.NewGuid(), Code = "ND_NL", Label = "Natuurlijke dood + geen lijkvinding" },
@@ -105,6 +142,68 @@ namespace DigiGrafWeb.Data
                 new CoffinLengths { Id = Guid.NewGuid(), Code = "NORM", Label = "Regular", Description = "Normaal" },
                 new CoffinLengths { Id = Guid.NewGuid(), Code = "XL", Label = "XL-b", Description = "Extra lang & breed" },
                 new CoffinLengths { Id = Guid.NewGuid(), Code = "XXL", Label = "XXL-b", Description = "Extra extra lang & breed" }
+            );
+            // Suppliers
+            context.Suppliers.AddRange(
+                new Suppliers
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Uitvaartkisten Noord",
+                    Description = "Leverancier van uitvaartkisten",
+                    Type = SupplierType.Kisten,
+                    IsActive = true,
+                    Address = new PostalAddress
+                    {
+                        Street = "Industrieweg",
+                        HouseNumber = "12",
+                        ZipCode = "9403AB",
+                        City = "Assen"
+                    }
+                },
+                new Suppliers
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Bloemenservice De Roos",
+                    Description = "Rouwbloemen en arrangementen",
+                    Type = SupplierType.Bloemen,
+                    IsActive = true,
+                    Address = new PostalAddress
+                    {
+                        Street = "Bloemenstraat",
+                        HouseNumber = "45",
+                        ZipCode = "9712HG",
+                        City = "Groningen"
+                    }
+                },
+                new Suppliers
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Urn & Gedenk Atelier",
+                    Description = "Urnen en gedenksieraden",
+                    Type = SupplierType.UrnAndGedenksieraden,
+                    IsActive = true,
+                    Postbox = new Postbox
+                    {
+                        Address = "Postbus 123",
+                        Zipcode = "8000AA",
+                        City = "Zwolle"
+                    }
+                },
+                new Suppliers
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Steenhouwerij Van Dijk",
+                    Description = "Grafmonumenten en natuursteen",
+                    Type = SupplierType.Steenhouwer,
+                    IsActive = true,
+                    Address = new PostalAddress
+                    {
+                        Street = "Ambachtslaan",
+                        HouseNumber = "7",
+                        ZipCode = "7202CP",
+                        City = "Zutphen"
+                    }
+                }
             );
 
             // Document Templates & Sections (with exact previous IDs/content)

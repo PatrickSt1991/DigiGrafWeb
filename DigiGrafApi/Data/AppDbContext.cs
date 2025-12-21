@@ -8,6 +8,7 @@ namespace DigiGrafWeb.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        public DbSet<Employee> Employees { get; set; }
         public DbSet<License> Licenses { get; set; }
         public DbSet<Dossier> Dossiers { get; set; }
         public DbSet<Deceased> Deceased { get; set; }
@@ -15,6 +16,7 @@ namespace DigiGrafWeb.Data
         public DbSet<Salutation> Salutations { get; set; } = null!;
         public DbSet<BodyFinding> BodyFindings { get; set; } = null!;
         public DbSet<Origins> Origins { get; set; } = null!;
+        public DbSet<Suppliers> Suppliers { get; set; } = null!;
         public DbSet<MaritalStatus> MaritalStatuses { get; set; } = null!;
         public DbSet<InsuranceCompany> InsuranceCompanies { get; set; } = null!;
         public DbSet<InsurancePolicy> InsurancePolicies { get; set; } = null!;
@@ -46,6 +48,12 @@ namespace DigiGrafWeb.Data
             builder.Entity<DocumentSection>()
                 .Property(s => s.Type)
                 .IsRequired();
+
+            builder.Entity<Suppliers>(entity =>
+            {
+                entity.OwnsOne(s => s.Address);
+                entity.OwnsOne(s => s.Postbox);
+            });
         }
     }
 }
