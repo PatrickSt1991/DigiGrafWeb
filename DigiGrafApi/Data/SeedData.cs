@@ -60,40 +60,89 @@ namespace DigiGrafWeb.Data
                 context.Salutations.Add(new Salutation { Id = Guid.NewGuid(), Code = s.Code, Label = s.Label, IsActive = true });
 
             // Employees
-            context.Employees.AddRange(
-                new Employee
-                {
-                    Id = Guid.NewGuid(),
-                    IsActive = true,
-                    Initials = "J.D.",
-                    FirstName = "Jan",
-                    LastName = "Doe",
-                    Tussenvoegsel = "de",
-                    BirthPlace = "Amsterdam",
-                    BirthDate = new DateOnly(1985, 5, 15),
-                    Email = "j.doe@company.nl",
-                    Mobile = "06-12345678",
-                    Role = "Uitvaartbegeleider",
-                    StartDate = new DateOnly(2020, 1, 15)
-                },
-                new Employee
-                {
-                    Id = Guid.NewGuid(),
-                    IsActive = false,
-                    Initials = "M.S.",
-                    FirstName = "Maria",
-                    LastName = "Smith",
-                    Tussenvoegsel = "van",
-                    BirthPlace = "Rotterdam",
-                    BirthDate = new DateOnly(1982, 8, 22),
-                    Email = "m.smith@company.nl",
-                    Mobile = "06-87654321",
-                    Role = "Administratief",
-                    StartDate = new DateOnly(2019, 3, 1)
-                }
-            );
+            #region Employees
 
+            var adminEmployee = new Employee
+            {
+                Id = Guid.NewGuid(),
+                IsActive = true,
+                Initials = "SYS",
+                FirstName = "System",
+                LastName = "Administrator",
+                BirthPlace = "N/A",
+                BirthDate = new DateOnly(1980, 1, 1),
+                Email = adminUser.Email!,
+                Role = "Administrator",
+                StartDate = new DateOnly(2020, 1, 1),
+                UserId = adminUser.Id
+            };
+
+            var janEmployee = new Employee
+            {
+                Id = Guid.NewGuid(),
+                IsActive = true,
+                Initials = "J.D.",
+                FirstName = "Jan",
+                LastName = "Doe",
+                Tussenvoegsel = "de",
+                BirthPlace = "Amsterdam",
+                BirthDate = new DateOnly(1985, 5, 15),
+                Email = "j.doe@company.nl",
+                Mobile = "06-12345678",
+                Role = "Uitvaartbegeleider",
+                StartDate = new DateOnly(2020, 1, 15)
+            };
+
+            var mariaEmployee = new Employee
+            {
+                Id = Guid.NewGuid(),
+                IsActive = true,
+                Initials = "M.S.",
+                FirstName = "Maria",
+                LastName = "Smith",
+                Tussenvoegsel = "van",
+                BirthPlace = "Rotterdam",
+                BirthDate = new DateOnly(1982, 8, 22),
+                Email = "m.smith@company.nl",
+                Mobile = "06-87654321",
+                Role = "Administratief",
+                StartDate = new DateOnly(2019, 3, 1)
+            };
+
+            context.Employees.AddRange(adminEmployee, janEmployee, mariaEmployee);
             await context.SaveChangesAsync();
+
+            #endregion
+
+            #region Employee User (Jan Doe)
+
+            var janUser = await userManager.FindByEmailAsync(janEmployee.Email);
+            if (janUser == null)
+            {
+                janUser = new ApplicationUser
+                {
+                    UserName = janEmployee.Email,
+                    Email = janEmployee.Email,
+                    EmailConfirmed = true,
+                    FullName = "Jan de Doe",
+                    IsActive = true
+                };
+
+                var result = await userManager.CreateAsync(janUser, "Employee123!");
+                if (!result.Succeeded)
+                    throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+
+            if (!await userManager.IsInRoleAsync(janUser, "Gebruiker"))
+            {
+                await userManager.AddToRoleAsync(janUser, "Gebruiker");
+            }
+
+            janEmployee.UserId = janUser.Id;
+            context.Employees.Update(janEmployee);
+            await context.SaveChangesAsync();
+
+            #endregion
 
 
             // Body Findings

@@ -135,15 +135,7 @@ namespace DigiGrafWeb.Controllers
 
             return Ok(result);
         }
-        [HttpGet("employees")]
-        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployees()
-        {
-            var employees = await db.Employees
-                .OrderBy(e => e.LastName)
-                .ToListAsync();
 
-            return Ok(EmployeeMapper.ToDtoList(employees));
-        }
 
     }
 }

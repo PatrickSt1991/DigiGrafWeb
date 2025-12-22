@@ -7,7 +7,7 @@ namespace DigiGrafWeb.Models
         public string? FullName { get; set; }
         public string? RoleDescription { get; set; }
         public int OrganizationId { get; internal set; }
-        public bool IsActive { get; internal set; }
+        public bool IsActive { get; set; } = true;
     }
 
     public class ApplicationRole : IdentityRole<Guid>

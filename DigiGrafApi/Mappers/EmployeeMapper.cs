@@ -23,7 +23,6 @@ namespace DigiGrafWeb.Mappers
                 StartDate = dto.StartDate
             };
         }
-
         public static EmployeeDto ToDto(Employee entity)
         {
             return new EmployeeDto
@@ -42,16 +41,62 @@ namespace DigiGrafWeb.Mappers
                 StartDate = entity.StartDate
             };
         }
+        public static EmployeeOverviewDto ToOverviewDto(Employee entity)
+        {
+            return new EmployeeOverviewDto
+            {
+                Id = entity.Id,
+                FullName = entity.FullName,
+                Role = entity.Role,
+                IsActive = entity.IsActive,
 
-        // ✅ ADD THESE
+                HasLogin = entity.UserId != null,
+                LoginIsActive = entity.User?.IsActive,
+                LoginEmail = entity.User?.Email
+            };
+        }
+        public static AdminEmployeeDto ToAdminDto(Employee e)
+        {
+            return new AdminEmployeeDto
+            {
+                Id = e.Id,
+                Status = e.IsActive ? "active" : "inactive",
+
+                Initials = e.Initials,
+                FirstName = e.FirstName,
+                LastName = e.LastName,
+                Tussenvoegsel = e.Tussenvoegsel,
+
+                FullName = e.FullName,
+
+                BirthPlace = e.BirthPlace,
+                BirthDate = e.BirthDate,
+
+                Email = e.Email,
+                Mobile = e.Mobile,
+                Role = e.Role,
+                StartDate = e.StartDate,
+
+                HasLogin = e.UserId != null,
+                LoginIsActive = e.User?.IsActive
+            };
+        }
+
         public static IEnumerable<EmployeeDto> ToDtoList(IEnumerable<Employee> entities)
         {
             return entities.Select(e => ToDto(e));
         }
-
         public static IEnumerable<Employee> ToEntityList(IEnumerable<EmployeeDto> dtos)
         {
             return dtos.Select(d => ToEntity(d));
+        }
+        public static IEnumerable<EmployeeOverviewDto> ToOverviewDtoList(IEnumerable<Employee> entities)
+        {
+            return entities.Select(e => ToOverviewDto(e));
+        }
+        public static IEnumerable<AdminEmployeeDto> ToAdminDtoList(IEnumerable<Employee> entities)
+        {
+            return entities.Select(e => ToAdminDto(e));
         }
     }
 }
