@@ -9,45 +9,55 @@ namespace DigiGrafWeb.Mappers
         {
             return new Employee
             {
-                Id = dto.Id,
+                Id = dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id,
                 IsActive = dto.IsActive,
+
                 Initials = dto.Initials,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Tussenvoegsel = dto.Tussenvoegsel,
+
                 BirthPlace = dto.BirthPlace,
                 BirthDate = dto.BirthDate,
+
                 Email = dto.Email,
                 Mobile = dto.Mobile,
-                Role = dto.Role,
+
                 StartDate = dto.StartDate
+                // ❌ NO ROLE LOGIC HERE
             };
         }
+
         public static EmployeeDto ToDto(Employee entity)
         {
             return new EmployeeDto
             {
                 Id = entity.Id,
                 IsActive = entity.IsActive,
+
                 Initials = entity.Initials,
                 FirstName = entity.FirstName,
                 LastName = entity.LastName,
                 Tussenvoegsel = entity.Tussenvoegsel,
+
                 BirthPlace = entity.BirthPlace,
                 BirthDate = entity.BirthDate,
+
                 Email = entity.Email,
                 Mobile = entity.Mobile,
-                Role = entity.Role,
+
+                RoleId = Guid.Empty, // ✅ filled in controller when needed
                 StartDate = entity.StartDate
             };
         }
+
         public static EmployeeOverviewDto ToOverviewDto(Employee entity)
         {
             return new EmployeeOverviewDto
             {
                 Id = entity.Id,
                 FullName = entity.FullName,
-                Role = entity.Role,
+                Role = entity.Role, // existing string display is fine here
                 IsActive = entity.IsActive,
 
                 HasLogin = entity.UserId != null,
@@ -55,6 +65,7 @@ namespace DigiGrafWeb.Mappers
                 LoginEmail = entity.User?.Email
             };
         }
+
         public static AdminEmployeeDto ToAdminDto(Employee e)
         {
             return new AdminEmployeeDto
@@ -66,7 +77,6 @@ namespace DigiGrafWeb.Mappers
                 FirstName = e.FirstName,
                 LastName = e.LastName,
                 Tussenvoegsel = e.Tussenvoegsel,
-
                 FullName = e.FullName,
 
                 BirthPlace = e.BirthPlace,
@@ -74,7 +84,10 @@ namespace DigiGrafWeb.Mappers
 
                 Email = e.Email,
                 Mobile = e.Mobile,
-                Role = e.Role,
+
+                RoleId = Guid.Empty,      // ✅ filled in controller
+                RoleName = string.Empty, // ✅ filled in controller
+
                 StartDate = e.StartDate,
 
                 HasLogin = e.UserId != null,
@@ -82,21 +95,16 @@ namespace DigiGrafWeb.Mappers
             };
         }
 
-        public static IEnumerable<EmployeeDto> ToDtoList(IEnumerable<Employee> entities)
-        {
-            return entities.Select(e => ToDto(e));
-        }
-        public static IEnumerable<Employee> ToEntityList(IEnumerable<EmployeeDto> dtos)
-        {
-            return dtos.Select(d => ToEntity(d));
-        }
-        public static IEnumerable<EmployeeOverviewDto> ToOverviewDtoList(IEnumerable<Employee> entities)
-        {
-            return entities.Select(e => ToOverviewDto(e));
-        }
-        public static IEnumerable<AdminEmployeeDto> ToAdminDtoList(IEnumerable<Employee> entities)
-        {
-            return entities.Select(e => ToAdminDto(e));
-        }
+        public static IEnumerable<EmployeeDto> ToDtoList(IEnumerable<Employee> entities) =>
+            entities.Select(ToDto);
+
+        public static IEnumerable<Employee> ToEntityList(IEnumerable<EmployeeDto> dtos) =>
+            dtos.Select(ToEntity);
+
+        public static IEnumerable<EmployeeOverviewDto> ToOverviewDtoList(IEnumerable<Employee> entities) =>
+            entities.Select(ToOverviewDto);
+
+        public static IEnumerable<AdminEmployeeDto> ToAdminDtoList(IEnumerable<Employee> entities) =>
+            entities.Select(ToAdminDto);
     }
 }

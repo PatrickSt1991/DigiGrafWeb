@@ -17,7 +17,9 @@
         public string Email { get; set; } = null!;
         public string? Mobile { get; set; }
 
-        public string Role { get; set; } = null!;
+        public Guid RoleId { get; set; } = default!;
+        public string RoleName { get; set; } = default!;
+
         public DateOnly StartDate { get; set; }
     }
     public class EmployeeOverviewDto
@@ -49,11 +51,18 @@
         public string Email { get; set; } = null!;
         public string? Mobile { get; set; }
 
-        public string Role { get; set; } = null!;
+        public Guid RoleId { get; set; } = default!;
+        public string RoleName { get; set; } = default!;
         public DateOnly StartDate { get; set; }
 
         public bool HasLogin { get; set; }
         public bool? LoginIsActive { get; set; }
+    }
+    public class RoleDto
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Name { get; set; } = default!;
+        public string? Description { get; set; }
     }
 
 }

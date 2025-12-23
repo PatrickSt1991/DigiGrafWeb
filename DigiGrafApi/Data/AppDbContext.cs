@@ -1,7 +1,6 @@
 ﻿using DigiGrafWeb.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace DigiGrafWeb.Data
 {
@@ -34,10 +33,9 @@ namespace DigiGrafWeb.Data
 
             builder.Entity<Employee>()
                 .HasOne(e => e.User)
-                .WithOne()
-                .HasForeignKey<Employee>(e => e.UserId)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
-
 
             builder.Entity<DocumentTemplate>()
                 .HasMany(d => d.Sections)
