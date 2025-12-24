@@ -59,9 +59,6 @@ namespace DigiGrafWeb.Data
             foreach (var s in dutchSalutations)
                 context.Salutations.Add(new Salutation { Id = Guid.NewGuid(), Code = s.Code, Label = s.Label, IsActive = true });
 
-            // Employees
-            #region Employees
-
             var adminEmployee = new Employee
             {
                 Id = Guid.NewGuid(),
@@ -72,7 +69,6 @@ namespace DigiGrafWeb.Data
                 BirthPlace = "N/A",
                 BirthDate = new DateOnly(1980, 1, 1),
                 Email = adminUser.Email!,
-                Role = "Administrator",
                 StartDate = new DateOnly(2020, 1, 1),
                 UserId = adminUser.Id
             };
@@ -89,32 +85,11 @@ namespace DigiGrafWeb.Data
                 BirthDate = new DateOnly(1985, 5, 15),
                 Email = "j.doe@company.nl",
                 Mobile = "06-12345678",
-                Role = "Uitvaartbegeleider",
                 StartDate = new DateOnly(2020, 1, 15)
             };
 
-            var mariaEmployee = new Employee
-            {
-                Id = Guid.NewGuid(),
-                IsActive = true,
-                Initials = "M.S.",
-                FirstName = "Maria",
-                LastName = "Smith",
-                Tussenvoegsel = "van",
-                BirthPlace = "Rotterdam",
-                BirthDate = new DateOnly(1982, 8, 22),
-                Email = "m.smith@company.nl",
-                Mobile = "06-87654321",
-                Role = "Administratief",
-                StartDate = new DateOnly(2019, 3, 1)
-            };
-
-            context.Employees.AddRange(adminEmployee, janEmployee, mariaEmployee);
+            context.Employees.AddRange(adminEmployee, janEmployee);
             await context.SaveChangesAsync();
-
-            #endregion
-
-            #region Employee User (Jan Doe)
 
             var janUser = await userManager.FindByEmailAsync(janEmployee.Email);
             if (janUser == null)
@@ -141,8 +116,6 @@ namespace DigiGrafWeb.Data
             janEmployee.UserId = janUser.Id;
             context.Employees.Update(janEmployee);
             await context.SaveChangesAsync();
-
-            #endregion
 
 
             // Body Findings

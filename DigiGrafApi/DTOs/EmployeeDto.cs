@@ -2,7 +2,7 @@
 {
     public class EmployeeDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public bool IsActive { get; set; }
 
         public string Initials { get; set; } = null!;
@@ -18,7 +18,6 @@
         public string? Mobile { get; set; }
 
         public Guid RoleId { get; set; } = default!;
-        public string RoleName { get; set; } = default!;
 
         public DateOnly StartDate { get; set; }
     }

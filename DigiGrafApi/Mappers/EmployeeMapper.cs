@@ -9,7 +9,7 @@ namespace DigiGrafWeb.Mappers
         {
             return new Employee
             {
-                Id = dto.Id == Guid.Empty ? Guid.NewGuid() : dto.Id,
+                Id = dto.Id ?? Guid.NewGuid(),
                 IsActive = dto.IsActive,
 
                 Initials = dto.Initials,
@@ -24,7 +24,6 @@ namespace DigiGrafWeb.Mappers
                 Mobile = dto.Mobile,
 
                 StartDate = dto.StartDate
-                // ❌ NO ROLE LOGIC HERE
             };
         }
 
@@ -57,7 +56,6 @@ namespace DigiGrafWeb.Mappers
             {
                 Id = entity.Id,
                 FullName = entity.FullName,
-                Role = entity.Role, // existing string display is fine here
                 IsActive = entity.IsActive,
 
                 HasLogin = entity.UserId != null,

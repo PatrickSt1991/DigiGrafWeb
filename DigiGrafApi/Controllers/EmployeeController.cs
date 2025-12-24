@@ -194,7 +194,7 @@ namespace DigiGrafWeb.Controllers
         [HttpPost("createEmployee")]
         public async Task<ActionResult<EmployeeDto>> CreateEmployee([FromBody] EmployeeDto dto)
         {
-            // Basic validation
+            // Validation
             if (string.IsNullOrWhiteSpace(dto.FirstName) ||
                 string.IsNullOrWhiteSpace(dto.LastName) ||
                 string.IsNullOrWhiteSpace(dto.Email))
@@ -202,14 +202,38 @@ namespace DigiGrafWeb.Controllers
                 return BadRequest("First name, last name and email are required.");
             }
 
-            // Prevent duplicate email (employee-level)
-            var emailExists = await db.Employees.AnyAsync(e => e.Email == dto.Email);
-            if (emailExists)
-                return BadRequest("An employee with this email already exists.");
+            // Identity uniqueness check
+            if (await userManager.FindByEmailAsync(dto.Email) != null)
+                return BadRequest("A user with this email already exists.");
 
+            // 1. Create employee (AppDbContext)
             var employee = EmployeeMapper.ToEntity(dto);
-
             db.Employees.Add(employee);
+            await db.SaveChangesAsync();
+
+            // 2. Create identity user (IdentityDbContext)
+            var user = new ApplicationUser
+            {
+                UserName = dto.Email,
+                Email = dto.Email,
+                FullName = $"{dto.FirstName} {dto.LastName}",
+                IsActive = dto.IsActive
+            };
+
+            var result = await userManager.CreateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            // 3. Assign role
+            if (!string.IsNullOrEmpty(dto.RoleId.ToString()))
+            {
+                var role = await roleManager.FindByIdAsync(dto.RoleId.ToString());
+                if (role != null)
+                    await userManager.AddToRoleAsync(user, role.Name);
+            }
+
+            // 🔥 4. LINK VIA FK (THIS IS THE KEY FIX)
+            employee.UserId = user.Id;
             await db.SaveChangesAsync();
 
             return CreatedAtAction(
@@ -223,7 +247,7 @@ namespace DigiGrafWeb.Controllers
         [HttpPut("updateEmployee/{id}")]
         public async Task<IActionResult> UpdateEmployee(Guid id, [FromBody] EmployeeDto dto)
         {
-            if (id != dto.Id)
+            if (dto.Id == null || id != dto.Id.Value)
                 return BadRequest("ID mismatch.");
 
             var employee = await db.Employees
@@ -233,7 +257,7 @@ namespace DigiGrafWeb.Controllers
             if (employee == null)
                 return NotFound();
 
-            // Update employee fields
+            // ---- Update employee fields ----
             employee.IsActive = dto.IsActive;
             employee.Initials = dto.Initials;
             employee.FirstName = dto.FirstName;
@@ -245,20 +269,31 @@ namespace DigiGrafWeb.Controllers
             employee.Mobile = dto.Mobile;
             employee.StartDate = dto.StartDate;
 
-            // ---- ROLE UPDATE (THIS IS THE IMPORTANT PART) ----
+            // ---- ROLE UPDATE (Identity-owned) ----
             if (employee.User != null)
             {
                 var user = employee.User;
 
                 var existingRoles = await userManager.GetRolesAsync(user);
 
-                var newRole = await roleManager.FindByIdAsync(dto.RoleId.ToString());
+                if (dto.RoleId == null)
+                {
+                    // No function → remove all roles
+                    if (existingRoles.Any())
+                        await userManager.RemoveFromRolesAsync(user, existingRoles);
+                }
+                else
+                {
+                    var newRole = await roleManager.FindByIdAsync(dto.RoleId.ToString());
+                    if (newRole == null)
+                        return BadRequest("Invalid role.");
 
-                if (newRole == null)
-                    return BadRequest("Invalid role");
-
-                await userManager.RemoveFromRolesAsync(user, existingRoles);
-                await userManager.AddToRoleAsync(user, newRole.Name);
+                    if (!existingRoles.Contains(newRole.Name))
+                    {
+                        await userManager.RemoveFromRolesAsync(user, existingRoles);
+                        await userManager.AddToRoleAsync(user, newRole.Name);
+                    }
+                }
             }
 
             await db.SaveChangesAsync();

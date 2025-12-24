@@ -13,7 +13,6 @@
         public DateOnly BirthDate { get; set; }
         public string Email { get; set; } = null!;
         public string? Mobile { get; set; }
-        public string Role { get; set; } = null!;
         public DateOnly StartDate { get; set; }
 
         public Guid? UserId { get; set; }
