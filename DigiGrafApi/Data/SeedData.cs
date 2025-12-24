@@ -142,11 +142,11 @@ namespace DigiGrafWeb.Data
                 new MaritalStatus { Id = Guid.NewGuid(), Code = "SMP", Label = "Samenwonend / partnerschap" }
             );
 
-            // Insurance Companies
-            context.InsuranceCompanies.AddRange(
-                new InsuranceCompany { Id = Guid.NewGuid(), Label = "Allianz", IsActive = true },
-                new InsuranceCompany { Id = Guid.NewGuid(), Label = "Aegon", IsActive = true },
-                new InsuranceCompany { Id = Guid.NewGuid(), Label = "Nationale Nederlanden", IsActive = true }
+            // Insurance parties (verzekeraars)
+            context.InsuranceParties.AddRange(
+                new InsuranceParty { Id = Guid.NewGuid(), Name = "Allianz", IsActive = true, IsInsurance = true, IsAssociation = false },
+                new InsuranceParty { Id = Guid.NewGuid(), Name = "Aegon", IsActive = true, IsInsurance = true, IsAssociation = false },
+                new InsuranceParty { Id = Guid.NewGuid(), Name = "Nationale Nederlanden", IsActive = true, IsInsurance = true, IsAssociation = false }
             );
 
             // Coffins
@@ -338,13 +338,13 @@ namespace DigiGrafWeb.Data
             context.Deceased.AddRange(deceased1, deceased2);
             await context.SaveChangesAsync();
 
-            var insuranceList = context.InsuranceCompanies.ToList();
+            var insuranceList = context.InsuranceParties.ToList();
 
             var invoice1 = new Invoice
             {
                 Id = Guid.NewGuid(),
                 DeceasedId = deceased1.Id,
-                SelectedVerzekeraar = insuranceList.First().Label,
+                SelectedVerzekeraar = insuranceList.First().Name,
                 DiscountAmount = 50,
                 Subtotal = 1000,
                 Total = 950,
@@ -360,7 +360,7 @@ namespace DigiGrafWeb.Data
             {
                 Id = Guid.NewGuid(),
                 DeceasedId = deceased2.Id,
-                SelectedVerzekeraar = insuranceList.Skip(1).First().Label,
+                SelectedVerzekeraar = insuranceList.Skip(1).First().Name,
                 DiscountAmount = 0,
                 Subtotal = 750,
                 Total = 750,

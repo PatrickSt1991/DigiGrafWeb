@@ -18,8 +18,11 @@ namespace DigiGrafWeb.Data
         public DbSet<Origins> Origins { get; set; } = null!;
         public DbSet<Suppliers> Suppliers { get; set; } = null!;
         public DbSet<MaritalStatus> MaritalStatuses { get; set; } = null!;
-        public DbSet<InsuranceCompany> InsuranceCompanies { get; set; } = null!;
+
+        // ✅ NEW / FIXED
+        public DbSet<InsuranceParty> InsuranceParties { get; set; } = null!;
         public DbSet<InsurancePolicy> InsurancePolicies { get; set; } = null!;
+
         public DbSet<Coffins> Coffins { get; set; } = null!;
         public DbSet<CoffinLengths> CoffinsLengths { get; set; } = null!;
         public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
@@ -31,12 +34,14 @@ namespace DigiGrafWeb.Data
         {
             base.OnModelCreating(builder);
 
+            // ===================== EMPLOYEE =====================
             builder.Entity<Employee>()
                 .HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // ===================== DOCUMENT TEMPLATES =====================
             builder.Entity<DocumentTemplate>()
                 .HasMany(d => d.Sections)
                 .WithOne(s => s.Template)
@@ -55,11 +60,36 @@ namespace DigiGrafWeb.Data
                 .Property(s => s.Type)
                 .IsRequired();
 
+            // ===================== SUPPLIERS =====================
             builder.Entity<Suppliers>(entity =>
             {
                 entity.OwnsOne(s => s.Address);
                 entity.OwnsOne(s => s.Postbox);
             });
+
+            // ===================== INSURANCE PARTY =====================
+
+            builder.Entity<InsuranceParty>()
+                .Property(p => p.CorrespondenceType)
+                .HasConversion<int>();
+
+            builder.Entity<InsuranceParty>()
+                .Property(p => p.BillingType)
+                .HasConversion<int>();
+
+            // ===================== INSURANCE POLICY =====================
+
+            builder.Entity<InsurancePolicy>()
+                .HasOne(p => p.InsuranceParty)
+                .WithMany(c => c.Policies)
+                .HasForeignKey(p => p.InsurancePartyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<InsurancePolicy>()
+                .HasOne(p => p.Overledene)
+                .WithMany()
+                .HasForeignKey(p => p.OverledeneId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
