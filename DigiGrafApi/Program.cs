@@ -1,4 +1,5 @@
 using DigiGrafWeb.Data;
+using DigiGrafWeb.Data.Seed;
 using DigiGrafWeb.Models;
 using DigiGrafWeb.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

@@ -1,4 +1,6 @@
-﻿namespace DigiGrafWeb.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace DigiGrafWeb.Models
 {
     public class InsurancePolicy
     {
@@ -9,6 +11,7 @@
         public Guid InsurancePartyId { get; set; }
 
         public string PolicyNumber { get; set; } = string.Empty;
+        [Precision(18, 2)]
         public decimal? Premium { get; set; }
 
         public Deceased Overledene { get; set; } = null!;

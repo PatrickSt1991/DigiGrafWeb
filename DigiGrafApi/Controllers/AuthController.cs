@@ -70,7 +70,7 @@ namespace DigiGrafWeb.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await _userManager.AddToRoleAsync(user, "Gebruiker");
+            await _userManager.AddToRoleAsync(user, "Medewerker");
 
             return Ok("User created");
         }

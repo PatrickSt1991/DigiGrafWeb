@@ -92,7 +92,7 @@ namespace DigiGrafWeb.Controllers
         [HttpGet("caretakers")]
         public async Task<ActionResult<IEnumerable<CaretakerDto>>> GetCaretakers()
         {
-            var roles = new[] { "Uitvaartleider", "Gebruikers" };
+            var roles = new[] { "Uitvaartleider", "Medewerker" };
             var caretakers = new List<ApplicationUser>();
 
             foreach (var role in roles)

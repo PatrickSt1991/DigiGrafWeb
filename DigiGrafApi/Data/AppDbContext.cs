@@ -22,7 +22,7 @@ namespace DigiGrafWeb.Data
         // ✅ NEW / FIXED
         public DbSet<InsuranceParty> InsuranceParties { get; set; } = null!;
         public DbSet<InsurancePolicy> InsurancePolicies { get; set; } = null!;
-
+        public DbSet<InsurancePriceComponent> InsurancePriceComponents { get; set; } = null!;
         public DbSet<Coffins> Coffins { get; set; } = null!;
         public DbSet<CoffinLengths> CoffinsLengths { get; set; } = null!;
         public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
@@ -90,6 +90,19 @@ namespace DigiGrafWeb.Data
                 .WithMany()
                 .HasForeignKey(p => p.OverledeneId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<InsurancePriceComponent>()
+                .HasOne(p => p.InsuranceParty)
+                .WithMany(x => x.PriceComponents)
+                .HasForeignKey(p => p.InsurancePartyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<InsurancePriceComponent>()
+                .Property(p => p.Omschrijving)
+                .IsRequired();
+
+            builder.Entity<InsurancePriceComponent>()
+                .HasIndex(x => new { x.InsurancePartyId, x.IsActive });
         }
     }
 }

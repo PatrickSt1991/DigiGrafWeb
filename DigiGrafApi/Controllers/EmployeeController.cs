@@ -147,7 +147,7 @@ namespace DigiGrafWeb.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await userManager.AddToRoleAsync(user, "Gebruiker");
+            await userManager.AddToRoleAsync(user, "Medewerker");
 
             employee.UserId = user.Id;
             db.Employees.Update(employee);

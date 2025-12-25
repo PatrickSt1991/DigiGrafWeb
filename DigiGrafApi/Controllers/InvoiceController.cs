@@ -1,9 +1,10 @@
-﻿using DigiGrafWeb.Data;
+﻿using ClosedXML.Excel;
+using DigiGrafWeb.Data;
 using DigiGrafWeb.DTOs;
 using DigiGrafWeb.Mappers;
+using DigiGrafWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ClosedXML.Excel;
 
 
 namespace DigiGrafWeb.Controllers
@@ -33,7 +34,6 @@ namespace DigiGrafWeb.Controllers
             return Ok(InvoiceMapper.ToDto(invoice));
         }
 
-        // POST: api/invoice
         [HttpPost]
         public async Task<ActionResult<InvoiceDto>> SaveInvoice([FromBody] InvoiceDto invoiceDto)
         {
@@ -41,31 +41,75 @@ namespace DigiGrafWeb.Controllers
 
             var existingInvoice = await _context.Invoices
                 .Include(i => i.PriceComponents)
-                .FirstOrDefaultAsync(i => i.Id == invoice.Id);
+                .FirstOrDefaultAsync(i => i.DeceasedId == invoice.DeceasedId);
 
             if (existingInvoice != null)
             {
-                // Update existing invoice
+                // Update core fields
                 existingInvoice.SelectedVerzekeraar = invoice.SelectedVerzekeraar;
+                existingInvoice.SelectedVerzekeraarId = invoice.SelectedVerzekeraarId;
                 existingInvoice.DiscountAmount = invoice.DiscountAmount;
-                existingInvoice.Subtotal = invoice.Subtotal;
-                existingInvoice.Total = invoice.Total;
 
-                // Replace price components
-                _context.PriceComponents.RemoveRange(existingInvoice.PriceComponents);
-                existingInvoice.PriceComponents = invoice.PriceComponents;
+                // Apply insurer agreements
+                if (invoice.SelectedVerzekeraarId != Guid.Empty)
+                {
+                    await ApplyInsurancePriceComponentsAsync(
+                        existingInvoice,
+                        invoice.SelectedVerzekeraarId
+                    );
+                }
 
                 await _context.SaveChangesAsync();
                 return Ok(InvoiceMapper.ToDto(existingInvoice));
             }
             else
             {
-                // Create new invoice
+                // Create invoice
+                invoice.Id = Guid.NewGuid();
                 _context.Invoices.Add(invoice);
                 await _context.SaveChangesAsync();
+
+                // Apply insurer agreements AFTER invoice exists
+                if (invoice.SelectedVerzekeraarId != Guid.Empty)
+                {
+                    await ApplyInsurancePriceComponentsAsync(
+                        invoice,
+                        invoice.SelectedVerzekeraarId
+                    );
+
+                    await _context.SaveChangesAsync();
+                }
+
                 return Ok(InvoiceMapper.ToDto(invoice));
             }
         }
+        // GET: api/invoice/templates?insurancePartyId=guid
+        [HttpGet("templates")]
+        public async Task<ActionResult<List<PriceComponentDto>>> GetInsuranceTemplate(
+            [FromQuery] Guid insurancePartyId)
+        {
+            if (insurancePartyId == Guid.Empty)
+                return BadRequest("InsurancePartyId is required.");
+
+            var agreements = await _context.InsurancePriceComponents
+                .Where(x =>
+                    x.InsurancePartyId == insurancePartyId &&
+                    x.IsActive
+                )
+                .OrderBy(x => x.SortOrder)
+                .ToListAsync();
+
+            var result = agreements.Select(a => new PriceComponentDto
+            {
+                Id = Guid.Empty, // new invoice line
+                Omschrijving = a.Omschrijving,
+                Aantal = a.Aantal,
+                Bedrag = a.Bedrag
+            }).ToList();
+
+            return Ok(result);
+        }
+
 
         // POST: api/invoice/generate-excel
         [HttpPost("generate-excel")]
@@ -114,5 +158,43 @@ namespace DigiGrafWeb.Controllers
             var fileName = $"Invoice_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
+        private async Task ApplyInsurancePriceComponentsAsync(
+            Invoice invoice,
+            Guid insurancePartyId
+        )
+        {
+            // Get insurer price agreements
+            var agreements = await _context.InsurancePriceComponents
+                .Where(x =>
+                    x.InsurancePartyId == insurancePartyId &&
+                    x.IsActive
+                )
+                .OrderBy(x => x.SortOrder)
+                .ToListAsync();
+
+            // Remove existing auto-generated invoice lines
+            var existingLines = await _context.PriceComponents
+                .Where(pc => pc.InvoiceId == invoice.Id)
+                .ToListAsync();
+
+            _context.PriceComponents.RemoveRange(existingLines);
+
+            // Copy agreements → invoice lines
+            var newLines = agreements.Select(a => new PriceComponent
+            {
+                Id = Guid.NewGuid(),
+                InvoiceId = invoice.Id,
+                Omschrijving = a.Omschrijving,
+                Aantal = a.Aantal,
+                Bedrag = a.Bedrag
+            }).ToList();
+
+            _context.PriceComponents.AddRange(newLines);
+
+            // Recalculate totals
+            invoice.Subtotal = newLines.Sum(x => x.Aantal * x.Bedrag);
+            invoice.Total = invoice.Subtotal - invoice.DiscountAmount;
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigiGrafWeb.Models
@@ -16,8 +17,11 @@ namespace DigiGrafWeb.Models
         public string SelectedVerzekeraar { get; set; }
         public Guid SelectedVerzekeraarId { get; set; }
 
+        [Precision(18, 2)]
         public decimal DiscountAmount { get; set; }
+        [Precision(18, 2)]
         public decimal Subtotal { get; set; }
+        [Precision(18, 2)]
         public decimal Total { get; set; }
 
         public ICollection<PriceComponent> PriceComponents { get; set; }
@@ -31,6 +35,7 @@ namespace DigiGrafWeb.Models
         [Required]
         public string Omschrijving { get; set; }
         public int Aantal { get; set; }
+        [Precision(18, 2)]
         public decimal Bedrag { get; set; }
 
         [ForeignKey("Invoice")]

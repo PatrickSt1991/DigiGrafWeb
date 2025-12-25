@@ -17,7 +17,7 @@ namespace DigiGrafWeb.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -133,7 +133,7 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.BodyFinding", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -158,7 +158,7 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.CoffinLengths", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -183,7 +183,7 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.Coffins", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -208,7 +208,7 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.DeathInfo", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -425,26 +425,129 @@ namespace DigiGrafWeb.Migrations
                     b.ToTable("Dossiers");
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.InsuranceCompany", b =>
+            modelBuilder.Entity("DigiGrafWeb.Models.Employee", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<DateOnly>("BirthDate")
+                        .HasColumnType("date");
 
-                    b.Property<string>("Label")
+                    b.Property<string>("BirthPlace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Value")
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Initials")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Mobile")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Tussenvoegsel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("DigiGrafWeb.Models.InsuranceParty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BillingType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CorrespondenceType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HasMembership")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasPackage")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("HouseNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HouseNumberSuffix")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAssociation")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsHerkomst")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsInsurance")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MailboxAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MailboxName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("InsuranceCompanies");
+                    b.ToTable("InsuranceParties");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.InsurancePolicy", b =>
@@ -453,7 +556,7 @@ namespace DigiGrafWeb.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("InsuranceCompanyId")
+                    b.Property<Guid>("InsurancePartyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("OverledeneId")
@@ -464,15 +567,49 @@ namespace DigiGrafWeb.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Premium")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InsuranceCompanyId");
+                    b.HasIndex("InsurancePartyId");
 
                     b.HasIndex("OverledeneId");
 
                     b.ToTable("InsurancePolicies");
+                });
+
+            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePriceComponent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Aantal")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Bedrag")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("InsurancePartyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Omschrijving")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InsurancePartyId", "IsActive");
+
+                    b.ToTable("InsurancePriceComponents");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.Invoice", b =>
@@ -485,6 +622,7 @@ namespace DigiGrafWeb.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("SelectedVerzekeraar")
@@ -495,9 +633,11 @@ namespace DigiGrafWeb.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Subtotal")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -550,7 +690,7 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.MaritalStatus", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -575,7 +715,7 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.Origins", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -608,6 +748,7 @@ namespace DigiGrafWeb.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Bedrag")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("InvoiceId")
@@ -626,7 +767,7 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.Salutation", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -647,6 +788,30 @@ namespace DigiGrafWeb.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Salutations");
+                });
+
+            modelBuilder.Entity("DigiGrafWeb.Models.Suppliers", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -785,12 +950,22 @@ namespace DigiGrafWeb.Migrations
                     b.Navigation("Template");
                 });
 
+            modelBuilder.Entity("DigiGrafWeb.Models.Employee", b =>
+                {
+                    b.HasOne("DigiGrafWeb.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DigiGrafWeb.Models.InsurancePolicy", b =>
                 {
-                    b.HasOne("DigiGrafWeb.Models.InsuranceCompany", "InsuranceCompany")
-                        .WithMany()
-                        .HasForeignKey("InsuranceCompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("DigiGrafWeb.Models.InsuranceParty", "InsuranceParty")
+                        .WithMany("Policies")
+                        .HasForeignKey("InsurancePartyId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DigiGrafWeb.Models.Deceased", "Overledene")
@@ -799,9 +974,20 @@ namespace DigiGrafWeb.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("InsuranceCompany");
+                    b.Navigation("InsuranceParty");
 
                     b.Navigation("Overledene");
+                });
+
+            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePriceComponent", b =>
+                {
+                    b.HasOne("DigiGrafWeb.Models.InsuranceParty", "InsuranceParty")
+                        .WithMany("PriceComponents")
+                        .HasForeignKey("InsurancePartyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InsuranceParty");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.Invoice", b =>
@@ -824,6 +1010,70 @@ namespace DigiGrafWeb.Migrations
                         .IsRequired();
 
                     b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("DigiGrafWeb.Models.Suppliers", b =>
+                {
+                    b.OwnsOne("DigiGrafWeb.Models.PostalAddress", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("SuppliersId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("HouseNumber")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Suffix")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("ZipCode")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("SuppliersId");
+
+                            b1.ToTable("Suppliers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SuppliersId");
+                        });
+
+                    b.OwnsOne("DigiGrafWeb.Models.Postbox", "Postbox", b1 =>
+                        {
+                            b1.Property<Guid>("SuppliersId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Zipcode")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("SuppliersId");
+
+                            b1.ToTable("Suppliers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SuppliersId");
+                        });
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Postbox");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -887,6 +1137,13 @@ namespace DigiGrafWeb.Migrations
                     b.Navigation("DeathInfo");
 
                     b.Navigation("Deceased");
+                });
+
+            modelBuilder.Entity("DigiGrafWeb.Models.InsuranceParty", b =>
+                {
+                    b.Navigation("Policies");
+
+                    b.Navigation("PriceComponents");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.Invoice", b =>

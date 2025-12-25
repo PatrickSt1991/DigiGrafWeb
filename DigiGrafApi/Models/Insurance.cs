@@ -15,6 +15,8 @@
 
     public class InsuranceParty
     {
+        public ICollection<InsurancePriceComponent> PriceComponents { get; set; } = new List<InsurancePriceComponent>();
+
         public Guid Id { get; set; }
 
         // Active / inactive
