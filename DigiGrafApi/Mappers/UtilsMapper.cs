@@ -316,10 +316,18 @@ namespace DigiGrafWeb.Mappers
         {
             return entities.Select(ToDto);
         }
-
         public static IEnumerable<Suppliers> ToEntityList(IEnumerable<SupplierDto> dtos)
         {
             return dtos.Select(ToEntity);
+        }
+        public static IEnumerable<SupplierTypeDto> ToTypeDtoList()
+        {
+            return Enum.GetValues<SupplierType>()
+                .Select(t => new SupplierTypeDto
+                {
+                    Code = t.ToString(),
+                    Label = t.GetDisplayName()
+                });
         }
     }
 }
