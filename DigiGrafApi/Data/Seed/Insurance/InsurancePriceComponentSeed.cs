@@ -10,23 +10,23 @@ namespace DigiGrafWeb.Data.Seed.Insurance
             if (db.InsurancePriceComponents.Any())
                 return;
 
-            // Pick specific insurers by name from your seed
             var asr = await db.InsuranceParties.FirstOrDefaultAsync(p => p.Name == "ASR");
             var al = await db.InsuranceParties.FirstOrDefaultAsync(p => p.Name == "Allianz");
 
-            // If you don’t have ASR in seed yet, you should add it in InsurancePartySeed.
             if (asr == null && al == null)
                 return;
 
             var list = new List<InsurancePriceComponent>();
 
+            // Example: create separate templates per insurer (same as before),
+            // but now attach with join table rows.
             if (asr != null)
             {
                 list.AddRange(new[]
                 {
-                    new InsurancePriceComponent { Id = Guid.NewGuid(), InsurancePartyId = asr.Id, Omschrijving = "Uitvaartkist", Aantal = 1, Bedrag = 100, SortOrder = 10, IsActive = true },
-                    new InsurancePriceComponent { Id = Guid.NewGuid(), InsurancePartyId = asr.Id, Omschrijving = "Vervoer",     Aantal = 1, Bedrag = 75,  SortOrder = 20, IsActive = true },
-                    new InsurancePriceComponent { Id = Guid.NewGuid(), InsurancePartyId = asr.Id, Omschrijving = "Dienst",      Aantal = 1, Bedrag = 250, SortOrder = 30, IsActive = true },
+                    Make(asr.Id, "Uitvaartkist", 1, 100m, 0m, 10),
+                    Make(asr.Id, "Vervoer",     1, 75m,  0m, 20),
+                    Make(asr.Id, "Dienst",      1, 250m, 0m, 30),
                 });
             }
 
@@ -34,14 +34,44 @@ namespace DigiGrafWeb.Data.Seed.Insurance
             {
                 list.AddRange(new[]
                 {
-                    new InsurancePriceComponent { Id = Guid.NewGuid(), InsurancePartyId = al.Id, Omschrijving = "Uitvaartkist", Aantal = 1, Bedrag = 150, SortOrder = 10, IsActive = true },
-                    new InsurancePriceComponent { Id = Guid.NewGuid(), InsurancePartyId = al.Id, Omschrijving = "Vervoer",     Aantal = 1, Bedrag = 95,  SortOrder = 20, IsActive = true },
-                    new InsurancePriceComponent { Id = Guid.NewGuid(), InsurancePartyId = al.Id, Omschrijving = "Dienst",      Aantal = 1, Bedrag = 300, SortOrder = 30, IsActive = true },
+                    Make(al.Id, "Uitvaartkist", 1, 150m, 0m, 10),
+                    Make(al.Id, "Vervoer",     1, 95m,  0m, 20),
+                    Make(al.Id, "Dienst",      1, 300m, 0m, 30),
                 });
             }
 
             db.InsurancePriceComponents.AddRange(list);
             await db.SaveChangesAsync();
+        }
+
+        private static InsurancePriceComponent Make(
+            Guid partyId,
+            string omschrijving,
+            int aantal,
+            decimal bedrag,
+            decimal factuurBedrag,
+            int sortOrder)
+        {
+            var id = Guid.NewGuid();
+
+            return new InsurancePriceComponent
+            {
+                Id = id,
+                Omschrijving = omschrijving,
+                VerzekerdAantal = aantal,
+                Bedrag = bedrag,
+                FactuurBedrag = factuurBedrag,
+                SortOrder = sortOrder,
+                IsActive = true,
+                InsuranceParties = new List<InsurancePriceComponentInsuranceParty>
+                {
+                    new InsurancePriceComponentInsuranceParty
+                    {
+                        InsurancePriceComponentId = id,
+                        InsurancePartyId = partyId
+                    }
+                }
+            };
         }
     }
 }

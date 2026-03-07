@@ -92,9 +92,10 @@ namespace DigiGrafWeb.Controllers
                 return BadRequest("InsurancePartyId is required.");
 
             var agreements = await _context.InsurancePriceComponents
+                .Include(x => x.InsuranceParties)
                 .Where(x =>
-                    x.InsurancePartyId == insurancePartyId &&
-                    x.IsActive
+                    x.IsActive &&
+                    x.InsuranceParties.Any(j => j.InsurancePartyId == insurancePartyId)
                 )
                 .OrderBy(x => x.SortOrder)
                 .ToListAsync();
@@ -103,7 +104,7 @@ namespace DigiGrafWeb.Controllers
             {
                 Id = Guid.Empty, // new invoice line
                 Omschrijving = a.Omschrijving,
-                Aantal = a.Aantal,
+                Aantal = a.VerzekerdAantal,
                 Bedrag = a.Bedrag
             }).ToList();
 
@@ -166,7 +167,7 @@ namespace DigiGrafWeb.Controllers
             // Get insurer price agreements
             var agreements = await _context.InsurancePriceComponents
                 .Where(x =>
-                    x.InsurancePartyId == insurancePartyId &&
+                    x.InsuranceParties.Any(j => j.InsurancePartyId == insurancePartyId) &&
                     x.IsActive
                 )
                 .OrderBy(x => x.SortOrder)
@@ -185,7 +186,7 @@ namespace DigiGrafWeb.Controllers
                 Id = Guid.NewGuid(),
                 InvoiceId = invoice.Id,
                 Omschrijving = a.Omschrijving,
-                Aantal = a.Aantal,
+                Aantal = a.VerzekerdAantal,
                 Bedrag = a.Bedrag
             }).ToList();
 

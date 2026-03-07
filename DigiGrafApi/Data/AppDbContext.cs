@@ -18,11 +18,12 @@ namespace DigiGrafWeb.Data
         public DbSet<Origins> Origins { get; set; } = null!;
         public DbSet<Suppliers> Suppliers { get; set; } = null!;
         public DbSet<MaritalStatus> MaritalStatuses { get; set; } = null!;
-
-        // ✅ NEW / FIXED
+        public DbSet<Asbestemming> Asbestemmingen { get; set; } = null!;
+        public DbSet<Rouwbrief> Rouwbrieven { get; set; } = null!;
         public DbSet<InsuranceParty> InsuranceParties { get; set; } = null!;
         public DbSet<InsurancePolicy> InsurancePolicies { get; set; } = null!;
         public DbSet<InsurancePriceComponent> InsurancePriceComponents { get; set; } = null!;
+        public DbSet<InsurancePriceComponentInsuranceParty> InsurancePriceComponentInsuranceParties { get; set; } = null!;
         public DbSet<Coffins> Coffins { get; set; } = null!;
         public DbSet<CoffinLengths> CoffinsLengths { get; set; } = null!;
         public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
@@ -91,18 +92,34 @@ namespace DigiGrafWeb.Data
                 .HasForeignKey(p => p.OverledeneId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<InsurancePriceComponent>()
-                .HasOne(p => p.InsuranceParty)
-                .WithMany(x => x.PriceComponents)
-                .HasForeignKey(p => p.InsurancePartyId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // ===================== INSURANCE PRICE COMPONENT (M:N) =====================
 
             builder.Entity<InsurancePriceComponent>()
                 .Property(p => p.Omschrijving)
                 .IsRequired();
 
+            // Join table composite key
+            builder.Entity<InsurancePriceComponentInsuranceParty>()
+                .HasKey(x => new { x.InsurancePriceComponentId, x.InsurancePartyId });
+
+            builder.Entity<InsurancePriceComponentInsuranceParty>()
+                .HasOne(x => x.InsurancePriceComponent)
+                .WithMany(p => p.InsuranceParties)
+                .HasForeignKey(x => x.InsurancePriceComponentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<InsurancePriceComponentInsuranceParty>()
+                .HasOne(x => x.InsuranceParty)
+                .WithMany(x => x.InsurancePriceComponents)
+                .HasForeignKey(x => x.InsurancePartyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Helpful indexes
             builder.Entity<InsurancePriceComponent>()
-                .HasIndex(x => new { x.InsurancePartyId, x.IsActive });
+                .HasIndex(x => new { x.IsActive, x.SortOrder });
+
+            builder.Entity<InsurancePriceComponentInsuranceParty>()
+                .HasIndex(x => x.InsurancePartyId);
         }
     }
 }

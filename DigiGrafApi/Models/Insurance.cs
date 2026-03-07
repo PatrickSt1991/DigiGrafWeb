@@ -15,14 +15,10 @@
 
     public class InsuranceParty
     {
-        public ICollection<InsurancePriceComponent> PriceComponents { get; set; } = new List<InsurancePriceComponent>();
+        public ICollection<InsurancePriceComponentInsuranceParty> InsurancePriceComponents { get; set; } = new List<InsurancePriceComponentInsuranceParty>();
 
         public Guid Id { get; set; }
-
-        // Active / inactive
         public bool IsActive { get; set; } = true;
-
-        // Identity
         public string Name { get; set; } = string.Empty;
 
         // Type flags

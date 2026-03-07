@@ -26,7 +26,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(c => c.Code)
                 .ToListAsync();
 
-            return Ok(CoffinsMapper.ToDtoList(coffins));
+            return Ok(GeneralMapper<Coffins>.ToDtoList(coffins));
         }
 
         [HttpGet("all")]
@@ -36,7 +36,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(c => c.Code)
                 .ToListAsync();
 
-            return Ok(CoffinsMapper.ToDtoList(coffins));
+            return Ok(GeneralMapper<Coffins>.ToDtoList(coffins));
         }
 
         [HttpGet("{id:guid}")]
@@ -46,11 +46,11 @@ namespace DigiGrafWeb.Controllers
             if (coffin == null)
                 return NotFound();
 
-            return Ok(CoffinsMapper.ToDto(coffin));
+            return Ok(GeneralMapper<Coffins>.ToDto(coffin));
         }
 
         [HttpPost("createCoffin")]
-        public async Task<IActionResult> CreateCoffin([FromBody] CoffinsDto dto)
+        public async Task<IActionResult> CreateCoffin([FromBody] GeneralDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Code))
                 return BadRequest("Code is required.");
@@ -58,7 +58,7 @@ namespace DigiGrafWeb.Controllers
             if (string.IsNullOrWhiteSpace(dto.Label))
                 return BadRequest("Label is required.");
 
-            var entity = CoffinsMapper.ToEntity(dto);
+            var entity = GeneralMapper<Coffins>.ToEntity(dto);
 
             _db.Coffins.Add(entity);
             await _db.SaveChangesAsync();
@@ -66,12 +66,12 @@ namespace DigiGrafWeb.Controllers
             return CreatedAtAction(
                 nameof(GetCoffin),
                 new { id = entity.Id },
-                CoffinsMapper.ToDto(entity)
+                GeneralMapper<Coffins>.ToDto(entity)
             );
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateCoffin(Guid id, [FromBody] CoffinsDto dto)
+        public async Task<IActionResult> UpdateCoffin(Guid id, [FromBody] Coffins dto)
         {
             if (dto.Id == null || dto.Id == Guid.Empty)
                 return BadRequest("Id is required.");

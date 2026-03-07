@@ -4,6 +4,7 @@ using DigiGrafWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DigiGrafWeb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260307191318_AddRouwbrieven")]
+    partial class AddRouwbrieven
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -611,13 +614,15 @@ namespace DigiGrafWeb.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("Aantal")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Bedrag")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("FactuurBedrag")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<Guid>("InsurancePartyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -629,32 +634,11 @@ namespace DigiGrafWeb.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
 
-                    b.Property<bool>("StandaardPM")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("VerzekerdAantal")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive", "SortOrder");
+                    b.HasIndex("InsurancePartyId", "IsActive");
 
                     b.ToTable("InsurancePriceComponents");
-                });
-
-            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePriceComponentInsuranceParty", b =>
-                {
-                    b.Property<Guid>("InsurancePriceComponentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("InsurancePartyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("InsurancePriceComponentId", "InsurancePartyId");
-
-                    b.HasIndex("InsurancePartyId");
-
-                    b.ToTable("InsurancePriceComponentInsuranceParties");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.Invoice", b =>
@@ -1049,23 +1033,15 @@ namespace DigiGrafWeb.Migrations
                     b.Navigation("Overledene");
                 });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePriceComponentInsuranceParty", b =>
+            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePriceComponent", b =>
                 {
                     b.HasOne("DigiGrafWeb.Models.InsuranceParty", "InsuranceParty")
-                        .WithMany("InsurancePriceComponents")
+                        .WithMany("PriceComponents")
                         .HasForeignKey("InsurancePartyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DigiGrafWeb.Models.InsurancePriceComponent", "InsurancePriceComponent")
-                        .WithMany("InsuranceParties")
-                        .HasForeignKey("InsurancePriceComponentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("InsuranceParty");
-
-                    b.Navigation("InsurancePriceComponent");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.Invoice", b =>
@@ -1219,14 +1195,9 @@ namespace DigiGrafWeb.Migrations
 
             modelBuilder.Entity("DigiGrafWeb.Models.InsuranceParty", b =>
                 {
-                    b.Navigation("InsurancePriceComponents");
-
                     b.Navigation("Policies");
-                });
 
-            modelBuilder.Entity("DigiGrafWeb.Models.InsurancePriceComponent", b =>
-                {
-                    b.Navigation("InsuranceParties");
+                    b.Navigation("PriceComponents");
                 });
 
             modelBuilder.Entity("DigiGrafWeb.Models.Invoice", b =>

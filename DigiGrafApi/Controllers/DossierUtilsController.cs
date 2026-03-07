@@ -37,7 +37,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(s => s.Label)
                 .ToListAsync();
 
-            return Ok(SalutationsMapper.ToDtoList(salutations));
+            return Ok(GeneralMapper<Salutation>.ToDtoList(salutations));
         }
         [HttpGet("bodyfindings")]
         public async Task<ActionResult<IEnumerable<BodyFinding>>> GetBodyFindings()
@@ -47,7 +47,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(b => b.Label)
                 .ToListAsync();
 
-            return Ok(BodyFindingsMapper.ToDtoList(bodyfindings));
+            return Ok(GeneralMapper<BodyFinding>.ToDtoList(bodyfindings));
         }
         [HttpGet("origins")]
         public async Task<ActionResult<IEnumerable<Origins>>> GetOrigins()
@@ -57,7 +57,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(o => o.Label)
                 .ToListAsync();
 
-            return Ok(OriginsMapper.ToDtoList(origins));
+            return Ok(GeneralMapper<Origins>.ToDtoList(origins));
         }
         [HttpGet("maritalstatus")]
         public async Task<ActionResult<IEnumerable<MaritalStatus>>> GetMaritalStatuses()
@@ -67,7 +67,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(m => m.Label)
                 .ToListAsync();
 
-            return Ok(MaritalStatusMapper.ToDtoList(statuses));
+            return Ok(GeneralMapper<MaritalStatus>.ToDtoList(statuses));
         }
         [HttpGet("coffins")]
         public async Task<ActionResult<IEnumerable<Coffins>>> GetCoffins()
@@ -77,7 +77,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(c => c.Label)
                 .ToListAsync();
 
-            return Ok(CoffinsMapper.ToDtoList(coffins));
+            return Ok(GeneralMapper<Coffins>.ToDtoList(coffins));
         }
         [HttpGet("coffins-length")]
         public async Task<ActionResult<IEnumerable<CoffinLengths>>> GetCoffinLenghts()
@@ -87,7 +87,7 @@ namespace DigiGrafWeb.Controllers
                 .OrderBy(c => c.Label)
                 .ToListAsync();
 
-            return Ok(CoffinsLenghtsMapper.ToDtoList(coffinslenghts));
+            return Ok(GeneralMapper<CoffinLengths>.ToDtoList(coffinslenghts));
         }
         [HttpGet("caretakers")]
         public async Task<ActionResult<IEnumerable<CaretakerDto>>> GetCaretakers()
